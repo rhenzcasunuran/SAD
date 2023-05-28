@@ -34,7 +34,7 @@ if(isset($_POST['login-btn'])) {
             header('location: resident-logged-in.php');
 
         } else {
-            $error[] = 'User not found';
+            $error[] = "Username & Password doesn't match.";
         }
     }
 }
