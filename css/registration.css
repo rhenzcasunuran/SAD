@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: start;
     margin-top: 75px;
-    max-width: 800px;
+    max-width: 580px;
     max-height: 522px;
     min-height: 522px;
 }
@@ -19,7 +19,16 @@
 
 .form-section.current {
     display: flex;
-  }
+}
+
+.input-group-text {
+    height: 100%;
+    cursor: pointer;
+}
+
+.bx-hide, .bx-show {
+    padding: 4px;
+}
 
 #icon {
     font-size: calc(45px + 2vw);
