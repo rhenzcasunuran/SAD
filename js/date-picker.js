@@ -1,15 +1,15 @@
 var Days = [31,28,31,30,31,30,31,31,30,31,30,31];// index => month [0-11]
 $(document).ready(function(){
-    var option = '<option hidden value="">Day</option>';
-    var selectedDay="day";
+    var option = '<option value="" disabled>Day</option>';
+    var selectedDay="";
     for (var i=1;i <= Days[0];i++){ //add option days
         option += '<option value="'+ i + '">' + i + '</option>';
     }
     $('#day').append(option);
     $('#day').val(selectedDay);
 
-    var option = '<option hidden value="">Month</option>';
-    var selectedMon ="month";
+    var option = '<option value="" selected disabled>Month</option>';
+    var selectedMon ="";
     for (var i=1;i <= 12;i++){
         var month = "";
         if (i===1) month = "January";
@@ -30,8 +30,8 @@ $(document).ready(function(){
     $('#month').val(selectedMon);
   
     var d = new Date();
-    var option = '<option hidden value="">Year</option>';
-    selectedYear ="year";
+    var option = '<option value="" selected disabled>Year</option>';
+    selectedYear = "";
     for (var i=1909;i <= d.getFullYear();i++){// years start i
         option += '<option value="'+ i + '">' + i + '</option>';
     }
@@ -66,12 +66,12 @@ function change_year(select)
 			       var day = $('#day');
 			       var val = $(day).val();
 			       $(day).empty();
-			       var option = '<option value="day">day</option>';
+			       var option = '<option value="">Day</option>';
 			       for (var i=1;i <= Days[1];i++){ //add option days
 				         option += '<option value="'+ i + '">' + i + '</option>';
              }
 			       $(day).append(option);
-			       if( val > Days[ month ] )
+			       if( val > Days[1] )
 			       {
 				          val = 1;
 			       }
@@ -82,8 +82,11 @@ function change_year(select)
 function change_month(select) {
     var day = $('#day');
     var val = $(day).val();
+
+
     $(day).empty();
-    var option = '<option value="day">day</option>';
+
+    var option = '<option value="" selected>Day</option>';
     var month = parseInt( $(select).val() ) - 1;
     for (var i=1;i <= Days[ month ];i++){ //add option days
         option += '<option value="'+ i + '">' + i + '</option>';
