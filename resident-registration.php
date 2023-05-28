@@ -160,7 +160,8 @@ if (isset($_POST['register-btn'])) {
                         <select class="form-select form-field" id="civil-status" name="civil-status"  required>
                             <option hidden value=""></option>
                             <option value="single">Single</option>
-                            <option value="marrie">Married</option>
+                            <option value="married">Married</option>
+                            <option value="live in">Live in</option>
                             <option value="divorce">Divorce</option>
                             <option value="divorce">Seperated</option>
                             <option value="widowed">Widowed</option>
@@ -177,22 +178,19 @@ if (isset($_POST['register-btn'])) {
                     <div class="form-group col-sm-4">
                         <label for="province" class="form-label">Province <span id="required">*</span></label>
                         <select class="form-select form-field" id="province" name="province" required>
-                            <option hidden value=""></option>
-                            <option value="laguna">Laguna</option>
+                            <option value="laguna" selected>Laguna</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-4">
                         <label for="city" class="form-label">City/Municipality <span id="required">*</span></label>
                         <select class="form-select form-field" id="city" name="city" required>
-                            <option hidden value=""></option>
-                            <option value="santa rosa">Santa Rosa</option>
+                            <option value="santa rosa" selected>Santa Rosa</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-4">
                         <label for="barangay" class="form-label">Barangay <span id="required">*</span></label>
                         <select class="form-select form-field" id="barangay" name="barangay" required>
-                            <option hidden value=""></option>
-                            <option value="aplaya">Aplaya</option>
+                            <option value="aplaya" selected>Aplaya</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-3">
@@ -200,7 +198,7 @@ if (isset($_POST['register-btn'])) {
                         <input type="text" class="form-control form-field numeric-only" id="zipcode" name="zipcode" minlength="4" maxlength="4" required>
                     </div>
                     <div class="form-group col-sm-9">
-                        <label for="phone" class="form-label">Phone Number <small>(09123456789)</small> <span id="required">*</span></label>
+                        <label for="phone" class="form-label">Mobile Number <small>(09123456789)</small> <span id="required">*</span></label>
                         <input type="tel" class="form-control form-field numeric-only" id="phone" name="phone" pattern="[0-9]{11}" maxlength="11" required>
                     </div>
                     <div class="form-group col-12">
@@ -243,10 +241,10 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-sm-6">
                         <label for="id" class="form-label">ID Number <span id="required">*</span></label>
-                        <input type="text" class="form-control form-field numeric-w-hyphen" id="id" name="id-number" required>
+                        <input type="text" class="form-control form-field numeric-w-hyphen" id="id" name="id-number" required maxlength="36">
                     </div>
                     <div class="form-group col-sm-6">
-                        <label for="id" class="form-label">ID Expiration Date <span id="required">*</span></label>
+                        <label for="id" class="form-label">ID Issued Date <span id="required">*</span></label>
                         <input type="date" class="form-control form-field" id="id" name="id-expiry-date" required>
                     </div>
                     <div class="form-group row">
