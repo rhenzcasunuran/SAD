@@ -266,11 +266,21 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-12">
                         <label for="password" class="form-label">Password <span id="required">*</span></label>
-                        <input type="password" class="form-control form-field" id="password" name="password" required>
+                        <div class="input-group" id="show-hide-password">
+                            <input type="password" class="form-control form-field password" id="password" name="password" required>
+                            <div class="input-group-text">
+                                <i class="bx bx-hide" aria-hidden="true"></i>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-12">
                         <label for="confirm-password" class="form-label">Confirm Password <span id="required">*</span></label>
-                        <input type="password" class="form-control form-field" id="confirm-password" name="confirmPassword" required>
+                        <div class="input-group" id="show-hide-confirm-password">
+                            <input type="password" class="form-control form-field" id="confirm-password" name="confirmPassword" required>
+                            <div class="input-group-text">
+                                <i class="bx bx-hide" aria-hidden="true"></i>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-12" id="terms-conditions-container">
                         <input id="terms-conditions" type="checkbox" class="form-field" required>
@@ -366,6 +376,32 @@ if (isset($_POST['register-btn'])) {
           if (!txt.match(/[A-Za-z0-9_]/)) {
               return false;
           }
+        });
+
+        $("#show-hide-password .input-group-text").on('click', function(e) {
+            e.preventDefault();
+            if($('#show-hide-password input').attr("type") === "text"){
+                $('#show-hide-password input').attr('type', 'password');
+                $('#show-hide-password i').addClass( "bx-hide" );
+                $('#show-hide-password i').removeClass( "bx-show" );
+            }else if($('#show-hide-password input').attr("type") === "password"){
+                $('#show-hide-password input').attr('type', 'text');
+                $('#show-hide-password i').removeClass( "bx-hide" );
+                $('#show-hide-password i').addClass( "bx-show" );
+            }
+        });
+
+        $("#show-hide-confirm-password .input-group-text").on('click', function(e) {
+            e.preventDefault();
+            if($('#show-hide-confirm-password input').attr("type") === "text"){
+                $('#show-hide-confirm-password input').attr('type', 'password');
+                $('#show-hide-confirm-password i').addClass( "bx-hide" );
+                $('#show-hide-confirm-password i').removeClass( "bx-show" );
+            }else if($('#show-hide-confirm-password input').attr("type") === "password"){
+                $('#show-hide-confirm-password input').attr('type', 'text');
+                $('#show-hide-confirm-password i').removeClass( "bx-hide" );
+                $('#show-hide-confirm-password i').addClass( "bx-show" );
+            }
         });
     </script>
 </body>

@@ -6,6 +6,10 @@ session_start();
 
 $resident_id = $_GET['password_reset'];
 
+if ($resident_id == NULL){
+    header("Location: resident-login.php");
+}
+
 if(isset($_POST['confirm-new-password-btn'])) {
     $new_password = md5($_POST['newPassword']);
     $confirm_password = md5($_POST['confirmNewPassword']);
@@ -62,10 +66,24 @@ if(isset($_POST['confirm-new-password-btn'])) {
         <div class="flex-column justify-content-center d-flex align-items-center w-100">
             <form action="" method="POST" class="form-container needs-validation" id="forgot-password-container" oninput='confirmNewPassword.setCustomValidity(confirmNewPassword.value != newPassword.value ? "Passwords do not match." : "")' novalidate>
                 <div class="form-header col-12">Set your NEW Password</div>
-                <label for="new-password" class="form-label">New Password <span id="required">*</span></label>
-                <input type="password" class="form-control form-field" id="new-password" name="newPassword" required>
-                <label for="confirm-new-password" class="form-label">Confirm Password <span id="required">*</span></label>
-                <input type="password" class="form-control form-field" id="confirm-new-password" name="confirmNewPassword" required>
+                <div class="form-group">
+                    <label for="new-password" class="form-label">New Password <span id="required">*</span></label>
+                    <div class="input-group" id="show-hide-password">
+                        <input type="password" class="form-control form-field" id="new-password" name="newPassword" required>
+                        <div class="input-group-text">
+                            <i class="bx bx-hide" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-new-password" class="form-label">Confirm Password <span id="required">*</span></label>
+                    <div class="input-group" id="show-hide-confirm-password">
+                        <input type="password" class="form-control form-field" id="confirm-new-password" name="confirmNewPassword" required>
+                        <div class="input-group-text">
+                            <i class="bx bx-hide" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group col-12 justify-content-center align-items-end d-flex">
                     <input class="btn text-center" type="submit" value="Submit" name="confirm-new-password-btn">
                 </div>
@@ -102,6 +120,32 @@ if(isset($_POST['confirm-new-password-btn'])) {
             }, false)
         })
         })()
+
+        $("#show-hide-password .input-group-text").on('click', function(e) {
+            e.preventDefault();
+            if($('#show-hide-password input').attr("type") === "text"){
+                $('#show-hide-password input').attr('type', 'password');
+                $('#show-hide-password i').addClass( "bx-hide" );
+                $('#show-hide-password i').removeClass( "bx-show" );
+            }else if($('#show-hide-password input').attr("type") === "password"){
+                $('#show-hide-password input').attr('type', 'text');
+                $('#show-hide-password i').removeClass( "bx-hide" );
+                $('#show-hide-password i').addClass( "bx-show" );
+            }
+        });
+
+        $("#show-hide-confirm-password .input-group-text").on('click', function(e) {
+            e.preventDefault();
+            if($('#show-hide-confirm-password input').attr("type") === "text"){
+                $('#show-hide-confirm-password input').attr('type', 'password');
+                $('#show-hide-confirm-password i').addClass( "bx-hide" );
+                $('#show-hide-confirm-password i').removeClass( "bx-show" );
+            }else if($('#show-hide-confirm-password input').attr("type") === "password"){
+                $('#show-hide-confirm-password input').attr('type', 'text');
+                $('#show-hide-confirm-password i').removeClass( "bx-hide" );
+                $('#show-hide-confirm-password i').addClass( "bx-show" );
+            }
+        });
     </script>
 </body>
 </html>
