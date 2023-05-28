@@ -11,32 +11,31 @@ $(function() {
   $("#form-container").parsley(parsleyOptions);
 
   window.Parsley.on("form:error", function(formInstance) {
-    $(".popover").hide();
     $(":focus").parsley().validate();
   });
 
   window.Parsley.on("field:validated", function(fieldInstance) {
     var element = fieldInstance.$element;
 
-    var feedback = element
-      .closest(".form-group")
-      .find(".form-control-feedback");
-    
-    $(".popover").hide();
-
     if (fieldInstance.isValid()) {
-
-    } else {     
+      element.removeClass("is-invalid");
+    } else {
+      element.addClass("is-invalid"); // Add invalid class
       element
         .popover({
           trigger: "manual",
           container: "body",
-          placement: "right",
+          placement: "bottom",
           content: function() {
             return fieldInstance.getErrorsMessages().join(";");
           }
-        })
-        .popover("show");
+        });
+        if (element.is(":focus")) {
+          element.popover("show");
+          setTimeout(function() {
+            element.popover("hide");
+          }, 3000); // Delay in milliseconds (2 seconds)
+        }
     }
   });
 
@@ -58,15 +57,15 @@ $(function() {
   }
 
   // Previous button is easy, just go back
-  $(".form-navigation .previous").click(function() {
-	$(".popover").hide(); 	
+  $(".form-navigation .previous").click(function() {	
+    $(".popover").hide(); 
     navigateTo(curIndex() - 1);
   });
 
   // Next button goes forward iff current block validates
   $(".form-navigation .next").click(function() {  
     if ($(".form-container").parsley().validate({ group: "block-" + curIndex() })) {
-		$(".popover").hide(); 	
+      $(".popover").hide(); 
 		navigateTo(curIndex() + 1);
 	 }
   });
@@ -75,5 +74,6 @@ $(function() {
   $sections.each(function(index, section) {
     $(section).find(".form-field").attr("data-parsley-group", "block-" + index);
   });
+
   navigateTo(0); // Start at the beginning
 });
