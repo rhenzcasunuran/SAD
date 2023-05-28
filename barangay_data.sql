@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 22, 2023 at 02:18 AM
+-- Generation Time: May 29, 2023 at 01:26 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -60,10 +60,8 @@ CREATE TABLE `resident_users` (
   `middle_name` varchar(255) NOT NULL,
   `last_name` varchar(255) NOT NULL,
   `suffix` varchar(255) DEFAULT 'Not Applicable',
-  `birth_month` int(11) NOT NULL,
-  `birth_day` int(11) NOT NULL,
-  `birth_year` int(11) NOT NULL,
   `place_of_birth` varchar(255) NOT NULL,
+  `birth_date` date NOT NULL,
   `sex` varchar(7) NOT NULL,
   `civil_status` varchar(8) NOT NULL,
   `street_building_house` varchar(255) NOT NULL DEFAULT 'Not Applicable',
@@ -76,7 +74,6 @@ CREATE TABLE `resident_users` (
   `valid_id_type` varchar(255) NOT NULL,
   `valid_id_number` varchar(255) NOT NULL,
   `valid_id_expiry` int(11) NOT NULL,
-  `selfie_path` varchar(255) NOT NULL,
   `account_activated` tinyint(1) NOT NULL DEFAULT 0,
   `time_created` datetime NOT NULL DEFAULT current_timestamp(),
   `last_session` datetime DEFAULT NULL

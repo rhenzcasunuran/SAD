@@ -4,7 +4,7 @@ include './connections.php';
 session_start();
 
 if (isset($_SESSION['session_resident_id'])) {
-    header('location: resident-logged-in.php');
+    header('location: personal-information.php');
 }
 
 if(isset($_POST['login-btn'])) {
@@ -31,7 +31,7 @@ if(isset($_POST['login-btn'])) {
             $row = mysqli_fetch_array($result);
     
             $_SESSION['session_resident_id'] = $row['resident_id'];
-            header('location: resident-logged-in.php');
+            header('location: personal-information.php');
 
         } else {
             $error[] = "Username & Password doesn't match.";

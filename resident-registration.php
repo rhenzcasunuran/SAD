@@ -15,6 +15,13 @@ if (isset($_POST['register-btn'])) {
     $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
     $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
     $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
+
+    // Adjust the month value to have leading zeros if necessary
+    $adjusted_birth_month = str_pad($birth_month, 2, "0", STR_PAD_LEFT);
+
+    // Concatenate the birthdate values into the desired format
+    $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
+
     $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
     $sex = mysqli_real_escape_string($conn, $_POST['sex']);
     $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
@@ -29,6 +36,7 @@ if (isset($_POST['register-btn'])) {
     $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
     $valid_id_expiry = mysqli_real_escape_string($conn, $_POST['id-expiry-date']);
 
+    // NOTE: THIS IS NOT IMPLEMENTED YET
     // Check if file input is set before using it
     if (isset($_FILES['id-selfie']) && $_FILES['id-selfie']['error'] == 0) {
         $filename = $_FILES['id-selfie']['name'];
@@ -46,22 +54,20 @@ if (isset($_POST['register-btn'])) {
     } else {
         // Prepare and execute the INSERT statement
         $insert = "INSERT INTO resident_users (username, password, first_name,
-        middle_name, last_name, suffix, birth_month, birth_day,
-        birth_year, place_of_birth, sex, civil_status, street_building_house,
-        province, city, barangay, zipcode, phone_number, email_address,
-        valid_id_type, valid_id_number, valid_id_expiry, selfie_path, time_created)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        middle_name, last_name, suffix, place_of_birth, birth_date, sex, civil_status,
+        street_building_house, province, city, barangay, zipcode, phone_number, email_address,
+        valid_id_type, valid_id_number, valid_id_expiry, time_created)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = mysqli_stmt_init($conn);
         if (!mysqli_stmt_prepare($stmt, $insert)) {
             echo "SQL connection error";
         } else {
-            // Use prepared statements to bind parameters securely
-            mysqli_stmt_bind_param($stmt, 'ssssssssssssssssssssssss', $username, $password,
-                $first_name, $middle_name, $last_name, $suffix, $birth_month, $birth_day,
-                $birth_year, $place_of_birth, $sex, $civil_status, $street_building_house,
-                $province, $city, $barangay, $zipcode, $phone_number, $email_address,
-                $valid_id_type, $valid_id_number, $valid_id_expiry, $filename, $current_date_time);
+            mysqli_stmt_bind_param($stmt, 'sssssssssssssssssssss', $username, $password,
+            $first_name, $middle_name, $last_name, $suffix, $place_of_birth, $birthdate,  
+            $sex, $civil_status, $street_building_house, $province, $city, $barangay, 
+            $zipcode, $phone_number, $email_address, $valid_id_type, $valid_id_number, 
+            $valid_id_expiry, $current_date_time);        
 
             mysqli_stmt_execute($stmt);
             header('location: resident-login.php');
@@ -159,12 +165,12 @@ if (isset($_POST['register-btn'])) {
                         <label for="civil-status" class="form-label">Civil Status <span id="required">*</span></label>
                         <select class="form-select form-field" id="civil-status" name="civil-status"  required>
                             <option hidden value=""></option>
-                            <option value="single">Single</option>
-                            <option value="married">Married</option>
-                            <option value="live in">Live in</option>
-                            <option value="divorce">Divorce</option>
-                            <option value="divorce">Seperated</option>
-                            <option value="widowed">Widowed</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Live in">Live in</option>
+                            <option value="Divorce">Divorce</option>
+                            <option value="Seperated">Seperated</option>
+                            <option value="Widowed">Widowed</option>
                         </select>
                     </div>
                 </div>
@@ -178,19 +184,19 @@ if (isset($_POST['register-btn'])) {
                     <div class="form-group col-sm-4">
                         <label for="province" class="form-label">Province <span id="required">*</span></label>
                         <select class="form-select form-field" id="province" name="province" required>
-                            <option value="laguna" selected>Laguna</option>
+                            <option value="Laguna" selected>Laguna</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-4">
                         <label for="city" class="form-label">City/Municipality <span id="required">*</span></label>
                         <select class="form-select form-field" id="city" name="city" required>
-                            <option value="santa rosa" selected>Santa Rosa</option>
+                            <option value="Santa Rosa" selected>Santa Rosa</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-4">
                         <label for="barangay" class="form-label">Barangay <span id="required">*</span></label>
                         <select class="form-select form-field" id="barangay" name="barangay" required>
-                            <option value="aplaya" selected>Aplaya</option>
+                            <option value="Aplaya" selected>Aplaya</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-3">
