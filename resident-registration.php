@@ -119,7 +119,7 @@ if (isset($_POST['register-btn'])) {
                         <label for="first-name" class="form-label">First Name <span id="required">*</span></label>
                         <input type="text" class="form-control form-field letters-only" id="first-name" name="first-name" required>
                     </div>
-                    <div class="form-group col-sm-5" class="form-label has-feedback">
+                    <div class="form-group col-sm-5 has-feedback">
                         <label for="middle-name" class="form-label">Middle Name</label>
                         <input type="text" class="form-control letters-only" id="middle-name" name="middle-name">
                     </div>
@@ -133,15 +133,15 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-sm-5 has-feedback">
                         <label class="form-label">Date of Birth <span id="required">*</span></label>
-                        <select id="month" class="form-select form-field" id="suffix-name" name="month" title="Month" onchange="change_month(this)"  required></select>
+                        <select id="month" class="form-select form-field" id="suffix-name" name="month" title="Birthmonth" onchange="change_month(this)"  required></select>
                     </div>
                     <div class="form-group col-sm-3 has-feedback">
                         <label class="form-label"><span id="required">*</span></label>
-                        <select id="day" class="form-select form-field" id="suffix-name" name="day" title="Day"  required></select>
+                        <select id="day" class="form-select form-field" id="suffix-name" name="day" title="Birthday"  required></select>
                     </div>
                     <div class="form-group col-sm-4 has-feedback">
                         <label class="form-label"><span id="required">*</span></label>
-                        <select id="year" class="form-select form-field" id="suffix-name" name="year" title="Year" onchange="change_year(this)"  required></select>
+                        <select id="year" class="form-select form-field" id="suffix-name" name="year" title="Birthyear" onchange="change_year(this)"  required></select>
                     </div>
                     <div class="form-group col-sm-5 has-feedback">
                         <label for="birthplace" class="form-label">Place of Birth <span id="required">*</span></label>
@@ -170,7 +170,7 @@ if (isset($_POST['register-btn'])) {
                 </div>
  
                 <div class="row h-100 form-section" id="tab-2">
-                    <div class="form-header col-12">Contact Details</div>
+                    <div class="form-header col-12">Address & Contact Details</div>
                     <div class="form-group col-12">
                         <label for="address" class="form-label">Street/Building/House No. <span id="required">*</span></label>
                         <input type="text" class="form-control form-field" id="address" name="address" required>
@@ -282,6 +282,7 @@ if (isset($_POST['register-btn'])) {
                     <button type="button" class="previous btn pull-left">&lt; Previous</button>
                     <button type="button" class="next btn pull-right">Next &gt;</button>
                     <input class="btn btn-default pull-right" type="submit" value="Submit" name="register-btn">
+                    <span class="clearfix"></span>
                 </div>
             </form>
     </div>
@@ -314,6 +315,26 @@ if (isset($_POST['register-btn'])) {
             }, false)
         })
         })()
+
+        //Paste Validation
+        $('.letters-only').on('input', function(e) {
+          $(this).val(function(i, v) {
+            return v.replace(/[^a-zA-Z\s]/g, '');
+          });
+        });
+
+        $('.numeric-only').on('input', function(e) {
+          $(this).val(function(i, v) {
+            return v.replace(/[^0-9]/g, '');
+          });
+        });
+
+        $('.numeric-w-hyphen').on('input', function(e) {
+          $(this).val(function(i, v) {
+            return v.replace(/[^0-9\-]/g, '');
+          });
+        });
+
 
         //Letter Validation
         $('.letters-only').keypress(function (e) {
