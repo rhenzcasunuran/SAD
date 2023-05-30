@@ -4,73 +4,104 @@ include './connections.php';
 session_start();
 
 if (isset($_POST['register-btn'])) {
-    // Get the form values and escape them
+    
+    // Account Details
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
     $confirm_password = md5($_POST['confirmPassword']);
-    $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
-    $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
-    $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
-    $suffix = mysqli_real_escape_string($conn, $_POST['suffix-name']);
-    $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
-    $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
-    $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
-
-    // Adjust the month value to have leading zeros if necessary
-    $adjusted_birth_month = str_pad($birth_month, 2, "0", STR_PAD_LEFT);
-
-    // Concatenate the birthdate values into the desired format
-    $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
-
-    $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
-    $sex = mysqli_real_escape_string($conn, $_POST['sex']);
-    $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
-    $street_building_house = mysqli_real_escape_string($conn, $_POST['address']);
-    $province = mysqli_real_escape_string($conn, $_POST['province']);
-    $city = mysqli_real_escape_string($conn, $_POST['city']);
-    $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
-    $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
-    $phone_number = mysqli_real_escape_string($conn, $_POST['phone']);
-    $email_address = mysqli_real_escape_string($conn, $_POST['email']);
-    $valid_id_type = mysqli_real_escape_string($conn, $_POST['id-type']);
-    $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
-    $valid_id_expiry = mysqli_real_escape_string($conn, $_POST['id-expiry-date']);
-
-    // NOTE: THIS IS NOT IMPLEMENTED YET
-    // Check if file input is set before using it
-    if (isset($_FILES['id-selfie']) && $_FILES['id-selfie']['error'] == 0) {
-        $filename = $_FILES['id-selfie']['name'];
-        $tempname = $_FILES['id-selfie']['tmp_name'];
-        $folder = "uploads/" . $filename;
-        move_uploaded_file($tempname, $folder);
-    } else {
-        $filename = "";
-    }
-
     $current_date_time = date('Y-m-d H:i:s');
 
+    // Check if password matches
     if ($password != $confirm_password) {
         $error[] = 'Passwords did not match!';
     } else {
-        // Prepare and execute the INSERT statement
-        $insert = "INSERT INTO resident_users (username, password, first_name,
-        middle_name, last_name, suffix, place_of_birth, birth_date, sex, civil_status,
-        street_building_house, province, city, barangay, zipcode, phone_number, email_address,
-        valid_id_type, valid_id_number, valid_id_expiry, time_created)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $insert = "INSERT INTO resident_users (resident_username, resident_password,
+        account_creation_date)
+        VALUES (?, ?, ?)";
 
         $stmt = mysqli_stmt_init($conn);
         if (!mysqli_stmt_prepare($stmt, $insert)) {
             echo "SQL connection error";
         } else {
-            mysqli_stmt_bind_param($stmt, 'sssssssssssssssssssss', $username, $password,
-            $first_name, $middle_name, $last_name, $suffix, $place_of_birth, $birthdate,  
-            $sex, $civil_status, $street_building_house, $province, $city, $barangay, 
-            $zipcode, $phone_number, $email_address, $valid_id_type, $valid_id_number, 
-            $valid_id_expiry, $current_date_time);        
-
+            // Insert to resident_users table
+            mysqli_stmt_bind_param($stmt, 'sss', $username, $password, $current_date_time);        
             mysqli_stmt_execute($stmt);
+            $resident_id = mysqli_insert_id($conn); // Retrieve the inserted resident_id
+
+            // Personal Details
+            $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
+            $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
+            $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
+            $suffix = mysqli_real_escape_string($conn, $_POST['suffix-name']);
+            $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
+            $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
+            $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
+            // Adjust the month value to have leading zeros if necessary
+            $adjusted_birth_month = str_pad($birth_month, 2, "0", STR_PAD_LEFT);
+            // Concatenate the birthdate values into the desired format
+            $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
+            $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
+            $sex = mysqli_real_escape_string($conn, $_POST['sex']);
+            $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
+
+            $insert2 = "INSERT INTO resident_personal_details (resident_id, first_name,
+            middle_name, last_name, suffix, birth_date, birth_place, sex, civil_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            if (!mysqli_stmt_prepare($stmt, $insert2)) {
+                echo "SQL connection error";
+            } else {
+                mysqli_stmt_bind_param($stmt, 'sssssssss', $resident_id, $first_name, $middle_name,
+                $last_name, $suffix, $birthdate, $place_of_birth, $sex, $civil_status);        
+
+                mysqli_stmt_execute($stmt);
+            }
+
+            // Contact and Address Details
+            $street_building_house = mysqli_real_escape_string($conn, $_POST['address']);
+            $province = mysqli_real_escape_string($conn, $_POST['province']);
+            $city = mysqli_real_escape_string($conn, $_POST['city']);
+            $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
+            $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
+            $phone_number = mysqli_real_escape_string($conn, $_POST['phone']);
+            $email_address = mysqli_real_escape_string($conn, $_POST['email']);
+
+            $insert3 = "INSERT INTO resident_address_contact (resident_id, street_building_house,
+            province, city, barangay, zipcode, phone_number, email_address)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            if (!mysqli_stmt_prepare($stmt, $insert3)) {
+                echo "SQL connection error";
+            } else {
+                mysqli_stmt_bind_param($stmt, 'ssssssss', $resident_id, $street_building_house,
+                $province, $city, $barangay, $zipcode, $phone_number, $email_address);        
+
+                mysqli_stmt_execute($stmt);
+            }
+
+            // ID Verification
+            $valid_id_type = mysqli_real_escape_string($conn, $_POST['id-type']);
+            $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
+            $valid_id_issued = mysqli_real_escape_string($conn, $_POST['id-issued-date']);
+
+            $insert4 = "INSERT INTO resident_id_verification (resident_id, valid_id_type,
+            valid_id_number, id_issued_date)
+            VALUES (?, ?, ?, ?)";
+
+            if (!mysqli_stmt_prepare($stmt, $insert4)) {
+                echo "SQL connection error";
+            } else {
+                mysqli_stmt_bind_param($stmt, 'ssss', $resident_id, $valid_id_type,
+                $valid_id_number, $valid_id_issued);        
+
+                mysqli_stmt_execute($stmt);
+            }
+            
             header('location: resident-login.php');
+
+            // Close the statement and database connection
+            $stmt->close();
+            $conn->close();
         }
     }
 }
@@ -251,7 +282,7 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-sm-6">
                         <label for="id" class="form-label">ID Issued Date <span id="required">*</span></label>
-                        <input type="date" class="form-control form-field" id="id" name="id-expiry-date" required>
+                        <input type="date" class="form-control form-field" id="id" name="id-issued-date" required>
                     </div>
                     <div class="form-group row">
                         <div class="col-4" id="icon-container">

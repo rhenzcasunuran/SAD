@@ -11,17 +11,32 @@ require './vendor/mail/Exception.php';
 require './vendor/mail/PHPMailer.php';
 require './vendor/mail/SMTP.php';
 
-if(isset($_POST['email-submit-btn'])) {
+// Function to generate a random OTP
+function generateOTP($length = 6) {
+    $otp = "";
+    $characters = "0123456789";
+    $charLength = strlen($characters);
 
+    for ($i = 0; $i < $length; $i++) {
+        $otp .= $characters[rand(0, $charLength - 1)];
+    }
+
+    return $otp;
+}
+
+// Function to generate a unique token
+function generateUniqueToken() {
+    return bin2hex(random_bytes(32)); // Generates a 64-character token
+}
+
+if (isset($_POST['email-submit-btn'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
 
     $mail = new PHPMailer(true);
 
     try {
         $mail->SMTPDebug = 0;
-
         $mail->isSMTP();
-
         $mail->SMTPOptions = array(
             'ssl' => array(
                 'verify_peer' => false,
@@ -31,59 +46,69 @@ if(isset($_POST['email-submit-btn'])) {
         );
 
         $mail->Host = 'smtp.gmail.com';
-
         $mail->SMTPAuth = true;
-
         $mail->Username = 'intramurosbase@gmail.com';
-
         $mail->Password = 'abqkfnzbsghaahcn';
-
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-
         $mail->Port = 587; 
-
         $mail->setFrom('intramurosbase@gmail.com', 'Password Reset'); 
-
-        $mail->addAddress($email, $username);
-
+        $mail->addAddress($email);
         $mail->isHTML(true);
 
-        $otp = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
+        $select = "SELECT ru.*, rac.* FROM resident_users AS ru
+        INNER JOIN resident_address_contact AS rac 
+        ON ru.resident_id = rac.resident_id WHERE rac.email_address = ?;";
 
-        $mail->Subject = 'Forgot Password';
-        $mail->Body = '<center><p>
-        Looks like you requested an account recovery for this email address.
-        If this was not you, please disregard this email.
-        <br>
-        OTP Code is: <b style="font-size: 30px;">'.$otp.'</b></p></center>';
-
-        $select = "SELECT resident_id FROM resident_users WHERE email_address = ?";
         $stmt_init = mysqli_stmt_init($conn);
-        if(!mysqli_stmt_prepare($stmt_init, $select)){
+        if (!mysqli_stmt_prepare($stmt_init, $select)) {
             echo "SQL connection error";
         } else {
             mysqli_stmt_bind_param($stmt_init, 's', $email);
             mysqli_stmt_execute($stmt_init);
             $result = $stmt_init->get_result();
-        
-            if(mysqli_num_rows($result) > 0) {
-                // email found, fetch the resident_id
+
+            if (mysqli_num_rows($result) > 0) {
+                // Email found, fetch the resident ID
                 $row = mysqli_fetch_assoc($result);
                 $resident_id = $row['resident_id'];
-                
-                // insert resident_id and otp to forgot_password_users
-                $insert = "INSERT INTO forgot_password_users (resident_id, otp) VALUES (?, ?)";
+
+                // Generate OTP and token
+                $otp = generateOTP();
+                $token = generateUniqueToken();
+
+                // Store the resident ID, OTP, and token in the database
+                $insert = "INSERT INTO forgot_password_users (resident_id, token, otp, expiration_time, is_used, is_active) VALUES (?, ?, ?, ?, 0, 0)";
                 $stmt_init2 = mysqli_stmt_init($conn);
-                if(!mysqli_stmt_prepare($stmt_init2, $insert)){
+                if (!mysqli_stmt_prepare($stmt_init2, $insert)) {
                     echo "SQL connection error";
                 } else {
-                    mysqli_stmt_bind_param($stmt_init2, 'is', $resident_id, $otp);
+                    $expirationTime = date('Y-m-d H:i:s', strtotime('+1 hour')); // Set expiration time to 1 hour from now
+                    mysqli_stmt_bind_param($stmt_init2, 'isss', $resident_id, $token, $otp, $expirationTime);
                     mysqli_stmt_execute($stmt_init2);
-                    $mail->send();
-                    header("Location: resident-email-confirmation.php?reset_id=$resident_id");
+
+                    // Prepare the email
+                    $subject = "Password Reset";
+                    $message = "Your OTP for password reset is: " . $otp;
+                    $resetLink = "http://localhost/SAD-DEV/resident-new-password.php?token=" . urlencode($token) . "&otp=" . urlencode($otp) . "&id=" . $resident_id;
+                    $message .= "<br><br>Click the following link to reset your password: <a href='" . $resetLink . "'>" . $resetLink . "</a>";
+
+                    // Configure PHP Mailer
+                    $mail->addAddress($email);
+                    $mail->isHTML(true);
+                    $mail->Subject = $subject;
+                    $mail->Body = $message;
+
+                    // Send the email
+                    if ($mail->send()) {
+                        // Redirect to the OTP confirmation page
+                        header("Location: resident-email-confirmation.php?token=" . urlencode($token) . "&id=" . $resident_id);
+                        exit();
+                    } else {
+                        echo "Error sending email. Please try again later.";
+                    }
                 }
             } else {
-                $error[] = 'User not found';
+                echo "User not found";
             }
         }
     } catch (Exception $e) {

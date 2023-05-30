@@ -12,8 +12,8 @@ if(isset($_POST['login-btn'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
 
-    $select = "SELECT * FROM resident_users WHERE username = ? AND password = ?";
-
+    $select = "SELECT * FROM resident_users WHERE resident_username = ? AND resident_password = ? ";
+    
     $stmt = mysqli_stmt_init($conn);
 
     if(!mysqli_stmt_prepare($stmt, $select)) {

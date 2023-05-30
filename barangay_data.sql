@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 29, 2023 at 01:26 AM
+-- Generation Time: May 30, 2023 at 12:04 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -28,10 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `forgot_password_users` (
-  `resident_reset_id` bigint(20) NOT NULL,
-  `resident_id` bigint(20) NOT NULL,
+  `reset_id` int(11) NOT NULL,
+  `resident_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
   `otp` int(6) NOT NULL,
-  `is_otp_matching` varchar(3) NOT NULL DEFAULT 'no'
+  `expiration_time` datetime NOT NULL,
+  `is_used` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -49,34 +52,67 @@ CREATE TABLE `personnel_users` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `resident_users`
+-- Table structure for table `resident_address_contact`
 --
 
-CREATE TABLE `resident_users` (
+CREATE TABLE `resident_address_contact` (
+  `resident_address_id` bigint(20) NOT NULL,
   `resident_id` bigint(20) NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `first_name` varchar(255) NOT NULL,
-  `middle_name` varchar(255) NOT NULL,
-  `last_name` varchar(255) NOT NULL,
-  `suffix` varchar(255) DEFAULT 'Not Applicable',
-  `place_of_birth` varchar(255) NOT NULL,
-  `birth_date` date NOT NULL,
-  `sex` varchar(7) NOT NULL,
-  `civil_status` varchar(8) NOT NULL,
-  `street_building_house` varchar(255) NOT NULL DEFAULT 'Not Applicable',
+  `street_building_house` varchar(255) NOT NULL,
   `province` varchar(255) NOT NULL,
   `city` varchar(255) NOT NULL,
   `barangay` varchar(255) NOT NULL,
   `zipcode` int(4) NOT NULL,
   `phone_number` int(10) NOT NULL,
-  `email_address` varchar(255) NOT NULL,
+  `email_address` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resident_id_verification`
+--
+
+CREATE TABLE `resident_id_verification` (
+  `resident_verification_id` bigint(20) NOT NULL,
+  `resident_id` bigint(20) NOT NULL,
   `valid_id_type` varchar(255) NOT NULL,
   `valid_id_number` varchar(255) NOT NULL,
-  `valid_id_expiry` int(11) NOT NULL,
-  `account_activated` tinyint(1) NOT NULL DEFAULT 0,
-  `time_created` datetime NOT NULL DEFAULT current_timestamp(),
-  `last_session` datetime DEFAULT NULL
+  `id_issued_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resident_personal_details`
+--
+
+CREATE TABLE `resident_personal_details` (
+  `resident_detail_id` bigint(20) NOT NULL,
+  `resident_id` bigint(20) NOT NULL,
+  `first_name` varchar(255) NOT NULL,
+  `middle_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `suffix` varchar(255) NOT NULL DEFAULT 'N/A',
+  `birth_date` date NOT NULL,
+  `birth_place` varchar(255) NOT NULL,
+  `sex` varchar(6) NOT NULL,
+  `civil_status` varchar(9) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resident_users`
+--
+
+CREATE TABLE `resident_users` (
+  `resident_id` bigint(20) NOT NULL,
+  `resident_username` varchar(255) NOT NULL,
+  `resident_password` varchar(255) NOT NULL,
+  `is_account_activated` tinyint(1) NOT NULL DEFAULT 0,
+  `account_creation_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_session` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -87,13 +123,31 @@ CREATE TABLE `resident_users` (
 -- Indexes for table `forgot_password_users`
 --
 ALTER TABLE `forgot_password_users`
-  ADD PRIMARY KEY (`resident_reset_id`);
+  ADD PRIMARY KEY (`reset_id`);
 
 --
 -- Indexes for table `personnel_users`
 --
 ALTER TABLE `personnel_users`
   ADD PRIMARY KEY (`personnel_id`);
+
+--
+-- Indexes for table `resident_address_contact`
+--
+ALTER TABLE `resident_address_contact`
+  ADD PRIMARY KEY (`resident_address_id`);
+
+--
+-- Indexes for table `resident_id_verification`
+--
+ALTER TABLE `resident_id_verification`
+  ADD PRIMARY KEY (`resident_verification_id`);
+
+--
+-- Indexes for table `resident_personal_details`
+--
+ALTER TABLE `resident_personal_details`
+  ADD PRIMARY KEY (`resident_detail_id`);
 
 --
 -- Indexes for table `resident_users`
@@ -109,13 +163,31 @@ ALTER TABLE `resident_users`
 -- AUTO_INCREMENT for table `forgot_password_users`
 --
 ALTER TABLE `forgot_password_users`
-  MODIFY `resident_reset_id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `personnel_users`
 --
 ALTER TABLE `personnel_users`
   MODIFY `personnel_id` bigint(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `resident_address_contact`
+--
+ALTER TABLE `resident_address_contact`
+  MODIFY `resident_address_id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `resident_id_verification`
+--
+ALTER TABLE `resident_id_verification`
+  MODIFY `resident_verification_id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `resident_personal_details`
+--
+ALTER TABLE `resident_personal_details`
+  MODIFY `resident_detail_id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `resident_users`

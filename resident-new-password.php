@@ -4,48 +4,96 @@ include './connections.php';
 
 session_start();
 
-$resident_id = $_GET['password_reset'];
+$token = $_GET['token'];
+$otp = $_GET['otp'];
+$resident_id = $_GET['id'];
 
-if ($resident_id == NULL){
-    header("Location: resident-login.php");
-}
+// Check if the required variables are present
+if (isset($token, $otp, $resident_id)) {
+    // Initialize connection
+    $stmt = mysqli_stmt_init($conn);
 
-if(isset($_POST['confirm-new-password-btn'])) {
-    $new_password = md5($_POST['newPassword']);
-    $confirm_password = md5($_POST['confirmNewPassword']);
+    // Prepare the UPDATE statement to set is_active to 1
+    $update_active = "UPDATE forgot_password_users SET is_active = 1 WHERE token = ? AND otp = ? AND resident_id = ?";
+    mysqli_stmt_prepare($stmt, $update_active);
+    mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
+    mysqli_stmt_execute($stmt);
 
-    $select = "SELECT email_address FROM resident_users WHERE resident_id = ?";
-    $stmt_init = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt_init, $select)){
-        echo "SQL connection error";
-    } else {
-        mysqli_stmt_bind_param($stmt_init, 'i', $resident_id);
-        mysqli_stmt_execute($stmt_init);
-        $result = $stmt_init->get_result();
+    // Prepare the SELECT statement to check if the entry is valid
+    $select = "SELECT * FROM forgot_password_users WHERE token = ? AND otp = ? AND resident_id = ? AND is_active = 1 AND is_used = 0";
+    mysqli_stmt_prepare($stmt, $select);
+    mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-        if(mysqli_num_rows($result) > 0) {
+    // Check if a valid entry exists in the database
+    if (mysqli_num_rows($result) > 0) {
+        // Fetch the row from the result set
+        $row = mysqli_fetch_assoc($result);
+
+        // Retrieve the expiration time from the row
+        $expirationTime = $row['expiration_time'];
+        $is_used = $row['is_used'];
+        $is_active = $row['is_active'];
+
+        // Check if the expiration time has passed
+        if ((strtotime($expirationTime) >= time()) && ($is_used === 0) && ($is_active === 1)) {
+
+            // Valid entry exists and has not expired, proceed with further logic
+            if(isset($_POST['confirm-new-password-btn'])) {
+                $new_password = md5($_POST['newPassword']);
+                $confirm_password = md5($_POST['confirmNewPassword']);
             
-            if($new_password == $confirm_password) {
-                // passwords match, update user's password in the database
-                $update = "UPDATE resident_users SET password = ? WHERE resident_id = ?";
-                $stmt_init = mysqli_stmt_init($conn);
-                if(!mysqli_stmt_prepare($stmt_init, $update)){
+                $select = "SELECT ru.*, rac.* FROM resident_users AS ru
+                INNER JOIN resident_address_contact AS rac 
+                ON ru.resident_id = rac.resident_id WHERE ru.resident_id = ?;";
+                
+                if(!mysqli_stmt_prepare($stmt, $select)){
                     echo "SQL connection error";
                 } else {
-                    mysqli_stmt_bind_param($stmt_init, 'si', $new_password, $resident_id);
-                    mysqli_stmt_execute($stmt_init);
-                    header("location:resident-login.php");
+                    mysqli_stmt_bind_param($stmt, 'i', $resident_id);
+                    mysqli_stmt_execute($stmt,);
+                    $result = $stmt->get_result();
+            
+                    if(mysqli_num_rows($result) > 0) {
+                        
+                        if($new_password == $confirm_password) {
+                            // passwords match, update user's password in the database
+                            $update = "UPDATE resident_users SET resident_password = ? WHERE resident_id = ?";
+                            if(!mysqli_stmt_prepare($stmt, $update)){
+                                echo "SQL connection error";
+                            } else {
+                                mysqli_stmt_bind_param($stmt, 'si', $new_password, $resident_id);
+                                mysqli_stmt_execute($stmt);
+
+                                // Set is_used to 1 and is_active to 0
+                                $update_flags = "UPDATE forgot_password_users SET is_used = 1, is_active = 0 WHERE token = ? AND otp = ? AND resident_id = ?";
+                                if (!mysqli_stmt_prepare($stmt, $update_flags)) {
+                                    echo "SQL connection error";
+                                } else {
+                                    mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
+                                    mysqli_stmt_execute($stmt);
+                                    header("Location: resident-login.php");
+                                }
+                            }
+                        } else {
+                            // passwords don't match, display error message
+                            echo "Passwords don't match";
+                        }
+                    } else {
+                        // resident_id not found, display error message
+                        echo "Resident ID not found";
+                        header("Location: resident-forgot-password-email.php");
+                    }        
                 }
-            } else {
-                // passwords don't match, display error message
-                echo "Passwords don't match";
             }
         } else {
-            // resident_id not found, display error message
-            echo "Resident ID not found";
-        }        
+            // Entry has expired or is no longer active
+            // Redirect the user back to resident-forgot-password-email.php
+            header("Location: resident-forgot-password-email.php");
+        }
     }
-}
+};
 ?>
 <!DOCTYPE html>
 <html lang="en">

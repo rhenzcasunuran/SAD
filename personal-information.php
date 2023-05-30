@@ -8,9 +8,12 @@ if (!isset($_SESSION['session_resident_id'])) {
 }
 
 // Prepare the SQL statement with a parameter placeholder
-$sql = "SELECT first_name, middle_name, last_name, birth_date,
-        sex, civil_status, street_building_house, barangay, city,
-        province FROM resident_users WHERE resident_id = ?";
+$sql = "SELECT ru.*, rpd.*, rac.*, riv.*
+        FROM resident_users AS ru
+        INNER JOIN resident_personal_details AS rpd ON ru.resident_id = rpd.resident_id
+        INNER JOIN resident_address_contact AS rac ON ru.resident_id = rac.resident_id
+        INNER JOIN resident_id_verification AS riv ON ru.resident_id = riv.resident_id
+        WHERE ru.resident_id = ?;";
 
 // Create a prepared statement
 $stmt = $conn->prepare($sql);
