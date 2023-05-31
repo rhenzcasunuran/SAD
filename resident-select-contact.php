@@ -18,6 +18,16 @@ session_start();
     <link rel="stylesheet" href="./css/login.css">
 </head>
 <body>
+    <!--Navbar-->
+    <div class="login-bar" id="top-var">
+        <div class="text-1">
+            Welcome to E-Playa
+        </div>
+        <div class="text-1">
+            About
+        </div>
+    </div>
+    <!--Content-->
     <div id="content-container">
         <div class="flex-column justify-content-center d-flex align-items-center w-100">
             <label class="form-label text-3 fw-bold" id="text-container">Select which contact detail should we use to reset your password.</label>

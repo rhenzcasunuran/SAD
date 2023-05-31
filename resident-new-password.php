@@ -110,6 +110,16 @@ if (isset($token, $otp, $resident_id)) {
     <link rel="stylesheet" href="./css/login.css">
 </head>
 <body>
+    <!--Navbar-->
+    <div class="login-bar" id="top-var">
+        <div class="text-1">
+            Welcome to E-Playa
+        </div>
+        <div class="text-1">
+            About
+        </div>
+    </div>
+    <!--Content-->
     <div id="content-container">
         <div class="flex-column justify-content-center d-flex align-items-center w-100">
             <form action="" method="POST" class="form-container needs-validation" id="forgot-password-container" oninput='confirmNewPassword.setCustomValidity(confirmNewPassword.value != newPassword.value ? "Passwords do not match." : "")' novalidate>
