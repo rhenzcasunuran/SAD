@@ -74,6 +74,19 @@ a {
     justify-content: space-between!important;
 }
 
+#content-container {
+    width: 100%;
+    height: calc(100% - 75px);
+    top: 75px;
+    position: fixed;
+    background-color: var(--sidebar-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    position: relative;
+}
+
 .content-container {
     height: calc(100% - 75px);
     top: 75px;
@@ -163,10 +176,6 @@ select {
 }
 
 @media (max-width: 576px) {
-    #content-container {
-        width: 100%!important;
-        align-items: start!important;
-    }
 
     .form-container {
         height: 100%!important;
