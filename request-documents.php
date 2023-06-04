@@ -1,3 +1,12 @@
+<?php
+include './connections.php';
+
+session_start();
+
+if (!isset($_SESSION['session_resident_id'])) {
+    header('location: resident-login.php');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

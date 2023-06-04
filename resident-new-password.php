@@ -4,6 +4,10 @@ include './connections.php';
 
 session_start();
 
+if (isset($_SESSION['session_resident_id'])) {
+    header('location: personal-information.php');
+}
+
 $token = $_GET['token'];
 $otp = $_GET['otp'];
 $resident_id = $_GET['id'];
@@ -13,14 +17,8 @@ if (isset($token, $otp, $resident_id)) {
     // Initialize connection
     $stmt = mysqli_stmt_init($conn);
 
-    // Prepare the UPDATE statement to set is_active to 1
-    $update_active = "UPDATE forgot_password_users SET is_active = 1 WHERE token = ? AND otp = ? AND resident_id = ?";
-    mysqli_stmt_prepare($stmt, $update_active);
-    mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
-    mysqli_stmt_execute($stmt);
-
     // Prepare the SELECT statement to check if the entry is valid
-    $select = "SELECT * FROM forgot_password_users WHERE token = ? AND otp = ? AND resident_id = ? AND is_active = 1 AND is_used = 0";
+    $select = "SELECT * FROM forgot_password_users WHERE token = ? AND otp = ? AND resident_id = ? AND is_used = 0;";
     mysqli_stmt_prepare($stmt, $select);
     mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
     mysqli_stmt_execute($stmt);
@@ -28,16 +26,16 @@ if (isset($token, $otp, $resident_id)) {
 
     // Check if a valid entry exists in the database
     if (mysqli_num_rows($result) > 0) {
+   
         // Fetch the row from the result set
         $row = mysqli_fetch_assoc($result);
 
         // Retrieve the expiration time from the row
         $expirationTime = $row['expiration_time'];
         $is_used = $row['is_used'];
-        $is_active = $row['is_active'];
-
+        
         // Check if the expiration time has passed
-        if ((strtotime($expirationTime) >= time()) && ($is_used === 0) && ($is_active === 1)) {
+        if ((strtotime($expirationTime) >= time()) && ($is_used === 0)) {
 
             // Valid entry exists and has not expired, proceed with further logic
             if(isset($_POST['confirm-new-password-btn'])) {
@@ -67,7 +65,7 @@ if (isset($token, $otp, $resident_id)) {
                                 mysqli_stmt_execute($stmt);
 
                                 // Set is_used to 1 and is_active to 0
-                                $update_flags = "UPDATE forgot_password_users SET is_used = 1, is_active = 0 WHERE token = ? AND otp = ? AND resident_id = ?";
+                                $update_flags = "UPDATE forgot_password_users SET is_used = 1 WHERE token = ? AND otp = ? AND resident_id = ?";
                                 if (!mysqli_stmt_prepare($stmt, $update_flags)) {
                                     echo "SQL connection error";
                                 } else {
@@ -78,11 +76,11 @@ if (isset($token, $otp, $resident_id)) {
                             }
                         } else {
                             // passwords don't match, display error message
-                            echo "Passwords don't match";
+                            $error[] =  "Passwords don't match";
                         }
                     } else {
                         // resident_id not found, display error message
-                        echo "Resident ID not found";
+                        $error[] = "Something went wrong";
                         header("Location: resident-forgot-password-email.php");
                     }        
                 }
@@ -90,8 +88,14 @@ if (isset($token, $otp, $resident_id)) {
         } else {
             // Entry has expired or is no longer active
             // Redirect the user back to resident-forgot-password-email.php
+            $error[] = "Token has expired or is no longer active";
             header("Location: resident-forgot-password-email.php");
         }
+    } else {
+        // Entry has expired or is no longer active
+        // Redirect the user back to resident-forgot-password-email.php
+        $error[] = "Token has expired or is no longer active";
+        header("Location: resident-forgot-password-email.php");
     }
 };
 ?>
@@ -142,6 +146,13 @@ if (isset($token, $otp, $resident_id)) {
                         </div>
                     </div>
                 </div>
+                <?php
+                    if(isset($error)) {
+                        foreach($error as $error) {
+                            echo '<p class="form-label text-3 text-center text-decoration-none" style=color:red>'.$error.'</p>';
+                        };
+                    };
+                ?> 
                 <div class="form-group col-12 justify-content-center align-items-end d-flex">
                     <input class="btn text-center" type="submit" value="Submit" name="confirm-new-password-btn">
                 </div>

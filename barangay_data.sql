@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 30, 2023 at 12:04 PM
+-- Generation Time: Jun 04, 2023 at 04:08 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -33,8 +33,7 @@ CREATE TABLE `forgot_password_users` (
   `token` varchar(255) NOT NULL,
   `otp` int(6) NOT NULL,
   `expiration_time` datetime NOT NULL,
-  `is_used` tinyint(1) NOT NULL,
-  `is_active` tinyint(1) NOT NULL
+  `is_used` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -52,6 +51,23 @@ CREATE TABLE `personnel_users` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `resident_address_book`
+--
+
+CREATE TABLE `resident_address_book` (
+  `address_entry_id` bigint(20) NOT NULL,
+  `resident_id` bigint(20) NOT NULL,
+  `street_building_house` varchar(255) NOT NULL,
+  `province` varchar(255) NOT NULL,
+  `city_municipality` varchar(255) NOT NULL,
+  `barangay` varchar(255) NOT NULL,
+  `zipcode` int(4) NOT NULL,
+  `phone_number` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `resident_address_contact`
 --
 
@@ -63,7 +79,7 @@ CREATE TABLE `resident_address_contact` (
   `city` varchar(255) NOT NULL,
   `barangay` varchar(255) NOT NULL,
   `zipcode` int(4) NOT NULL,
-  `phone_number` int(10) NOT NULL,
+  `phone_number` int(11) NOT NULL,
   `email_address` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -132,6 +148,12 @@ ALTER TABLE `personnel_users`
   ADD PRIMARY KEY (`personnel_id`);
 
 --
+-- Indexes for table `resident_address_book`
+--
+ALTER TABLE `resident_address_book`
+  ADD PRIMARY KEY (`address_entry_id`);
+
+--
 -- Indexes for table `resident_address_contact`
 --
 ALTER TABLE `resident_address_contact`
@@ -170,6 +192,12 @@ ALTER TABLE `forgot_password_users`
 --
 ALTER TABLE `personnel_users`
   MODIFY `personnel_id` bigint(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `resident_address_book`
+--
+ALTER TABLE `resident_address_book`
+  MODIFY `address_entry_id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `resident_address_contact`

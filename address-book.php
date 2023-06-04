@@ -1,3 +1,91 @@
+<?php
+include './connections.php';
+
+session_start();
+
+if (!isset($_SESSION['session_resident_id'])) {
+    header('location: resident-login.php');
+}
+
+$resident_id = $_SESSION['session_resident_id'];
+
+// Initialize a prepared statement
+$stmt = mysqli_stmt_init($conn);
+
+// Get adresses
+$get_addresses = "SELECT ru.resident_id, rab.resident_id,
+    rab.street_building_house, rab.barangay, rab.province, rab.city_municipality,
+    rab.zipcode 
+    FROM `resident_address_book` AS rab 
+    INNER JOIN `resident_users` AS ru 
+    ON ru.resident_id = rab.resident_id 
+    WHERE rab.resident_id = ?;";
+// Prepare the statement
+mysqli_stmt_prepare($stmt, $get_addresses);
+// Bind the parameter
+mysqli_stmt_bind_param($stmt, "i", $resident_id);
+// Execute the statement
+mysqli_stmt_execute($stmt);
+// Get the result set
+$result = mysqli_stmt_get_result($stmt);
+
+// Get permanent address
+$get_permanent_address = "SELECT ru.resident_id, rac.street_building_house, rac.barangay, rac.province, rac.city, rac.zipcode 
+    FROM `resident_address_contact` AS rac 
+    INNER JOIN `resident_users` AS ru 
+    ON ru.resident_id = rac.resident_id 
+    WHERE rac.resident_id = ?";
+// Prepare the statement
+mysqli_stmt_prepare($stmt, $get_permanent_address);
+// Bind the parameter
+mysqli_stmt_bind_param($stmt, "i", $resident_id);
+// Execute the statement
+mysqli_stmt_execute($stmt);
+// Get the result set
+$permanentAddressResult = mysqli_stmt_get_result($stmt);
+// Fetch the row
+$permanentAddressRow = mysqli_fetch_assoc($permanentAddressResult);
+// Concatenate the values into a single string
+$permanent_address = $permanentAddressRow['street_building_house'] . ', ' . $permanentAddressRow['barangay'] . ', ' . $permanentAddressRow['city'] . ', ' . $permanentAddressRow['province'] . ', ' . $permanentAddressRow['zipcode'];
+
+if (isset($_POST['submitNewPassword'])) {
+    // Validate and sanitize the input data
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $province = mysqli_real_escape_string($conn, $_POST['province']);
+    $city = mysqli_real_escape_string($conn, $_POST['city']);
+    $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
+    $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+
+    // Prepare the INSERT statement
+    $insertAddress = "INSERT INTO resident_address_book (resident_id, street_building_house, province, city_municipality, barangay, zipcode, phone_number) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    // Prepare the statement
+    if (mysqli_stmt_prepare($stmt, $insertAddress)) {
+        // Bind the parameters
+        mysqli_stmt_bind_param($stmt, 'sssssss', $resident_id, $address, $province, $city, $barangay, $zipcode, $phone);
+        
+        // Execute the statement
+        if (mysqli_stmt_execute($stmt)) {
+            // Address added successfully
+            echo "Address added successfully.";
+        } else {
+            // Error occurred while executing the statement
+            echo "Error: " . mysqli_error($conn);
+        }
+    } else {
+        // Error occurred while preparing the statement
+        echo "Error: " . mysqli_error($conn);
+    }
+}
+
+// Close the statement
+mysqli_stmt_close($stmt);
+
+// Close the database connection
+mysqli_close($conn);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +104,7 @@
 <body>
     <div class="popup-background" id="addNewAddress">
         <div class="row popup-container">
-            <form action="" id="addAddressForm" class="needs-validation" novalidate>
+            <form action="" method="POST" id="addAddressForm" class="needs-validation" novalidate>
                 <h3 class="col-12">Add a New Address</h3>
                 <div class="row text-start">
                     <div class="form-group col-12">
@@ -56,7 +144,7 @@
                 </div>
                 <div class="button-container">
                     <div class="btn" onclick="closeBtn()">Close</div>
-                    <button type="submit" class="btn" name="submitNewPassword">Done</button>
+                    <input type="submit" class="btn" value="Done" name="submitNewPassword">
                 </div>
             </form>
         </div>
@@ -119,7 +207,9 @@
                     </div>
                     <div class="row info">
                         <label for="" class="col-4">Permanent Address: </label>
-                        <p class="col-8">142 Tokyo, Japan</p>
+                        <?php 
+                            echo '<p class="col-8">'. $permanent_address .'</p>' 
+                        ?>
                     </div>
                     <div class="row info">
                         <label for="deliveryAddress" class="col-4">Delivery Address: </label>
@@ -130,14 +220,16 @@
                     </div>
                     <div class="row" id="newAddressContainer">
                         <ul>
-                            <li>New Address #1</li>
-                            <li>New Address #2</li>
-                            <li>New Address #3</li>
-                            <li>New Address #4</li>
-                            <li>New Address #5</li>
-                            <li>New Address #6</li>
-                            <li>New Address #7</li>
-                            <li>New Address #8</li>
+                        <?php
+                            // Fetch the rows
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                // Concatenate the values into a single string
+                                $address = $row['street_building_house'] . ', ' . $row['barangay'] . ', ' . $row['city_municipality'] . ', ' . $row['province'] . ', ' . $row['zipcode'];
+
+                                // Output each address as a separate list item
+                                echo '<li>' . $address . '</li>';
+                            }
+                        ?>
                         </ul>
                     </div>
                 </div>

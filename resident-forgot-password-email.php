@@ -3,6 +3,10 @@ include './connections.php';
 
 session_start();
 
+if (isset($_SESSION['session_resident_id'])) {
+    header('location: personal-information.php');
+}
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -77,7 +81,7 @@ if (isset($_POST['email-submit-btn'])) {
                 $token = generateUniqueToken();
 
                 // Store the resident ID, OTP, and token in the database
-                $insert = "INSERT INTO forgot_password_users (resident_id, token, otp, expiration_time, is_used, is_active) VALUES (?, ?, ?, ?, 0, 0)";
+                $insert = "INSERT INTO forgot_password_users (resident_id, token, otp, expiration_time, is_used) VALUES (?, ?, ?, ?, 0)";
                 $stmt_init2 = mysqli_stmt_init($conn);
                 if (!mysqli_stmt_prepare($stmt_init2, $insert)) {
                     echo "SQL connection error";
@@ -104,15 +108,15 @@ if (isset($_POST['email-submit-btn'])) {
                         header("Location: resident-email-confirmation.php?token=" . urlencode($token) . "&id=" . $resident_id);
                         exit();
                     } else {
-                        echo "Error sending email. Please try again later.";
+                        $error[] = "Error sending email. Please try again later.";
                     }
                 }
             } else {
-                echo "User not found";
+                $error[] = "User with that email is not found";
             }
         }
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        $error[] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 };
 ?>
@@ -151,6 +155,13 @@ if (isset($_POST['email-submit-btn'])) {
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control form-field" id="email" name="email" required>
                 </div>
+                <?php
+                    if(isset($error)) {
+                        foreach($error as $error) {
+                            echo '<p class="form-label text-3 text-center text-decoration-none" style=color:red>'.$error.'</p>';
+                        };
+                    };
+                ?> 
                 <div class="form-group col-12 justify-content-center align-items-end d-flex">
                     <input class="btn text-center" type="submit" value="Next" name="email-submit-btn">
                 </div>

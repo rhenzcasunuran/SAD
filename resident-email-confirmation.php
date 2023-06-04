@@ -4,6 +4,10 @@ include 'connections.php';
 
 session_start();
 
+if (isset($_SESSION['session_resident_id'])) {
+    header('location: personal-information.php');
+}
+
 if(isset($_POST['email-confirmation-btn'])) {
     // Check if the required query parameters are present
     $otp = $_POST['code'];
@@ -13,7 +17,7 @@ if(isset($_POST['email-confirmation-btn'])) {
         $resident_id = $_GET['id'];
 
         // Prepare the SELECT statement to check if the entry exists in the database
-        $select = "SELECT * FROM forgot_password_users WHERE token = ? AND otp = ? AND resident_id = ?";
+        $select = "SELECT * FROM forgot_password_users WHERE token = ? AND otp = ? AND resident_id = ? AND is_used = 0";
         $stmt = mysqli_prepare($conn, $select);
         mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
         mysqli_stmt_execute($stmt);
@@ -33,7 +37,7 @@ if(isset($_POST['email-confirmation-btn'])) {
                 // Entry has not expired, continue with password reset or other actions
 
                 // Update the `is_active` column to 1
-                $update = "UPDATE forgot_password_users SET is_active = 1 WHERE token = ? AND otp = ? AND resident_id = ? AND is_active = 0 AND is_used = 0";
+                $update = "UPDATE forgot_password_users SET is_active = 1 WHERE token = ? AND otp = ? AND resident_id = ? AND is_used = 0";
                 $stmt = mysqli_prepare($conn, $update);
                 mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
                 mysqli_stmt_execute($stmt);
@@ -45,20 +49,20 @@ if(isset($_POST['email-confirmation-btn'])) {
                     header("Location: ./resident-new-password.php?token=$token&otp=$otp&id=$resident_id");
                 } else {
                     // Update failed
-                    echo "Failed to activate password reset link. Please try again.";
+                    $error[] =  "Failed to activate password reset link. Please try again.";
                 }
 
             } else {
                 // Entry has expired
-                echo "The link has expired. Please request a new password reset link.";
+                $error[] =  "The link has expired. Please request a new password reset link.";
             }
         } else {
             // Entry not found in the database
-            echo "Invalid or expired link. Please try again.";
+            $error[] =  "Invalid or expired code.";
         }
     } else {
         // Missing query parameters
-        echo "Invalid request. Please try again.";
+        $error[] =  "Invalid request. Please try again.";
     }
 };
 ?>
@@ -94,6 +98,13 @@ if(isset($_POST['email-confirmation-btn'])) {
                 <div class="form-header col-12">CODE</div>
                 <small class="text-center">Verification</small>
                 <input type="text" class="form-control form-field code" name="code" oninput="validateNumberInput(this)" required>
+                <?php
+                    if(isset($error)) {
+                        foreach($error as $error) {
+                            echo '<p class="form-label text-3 text-center text-decoration-none" style=color:red>'.$error.'</p>';
+                        };
+                    };
+                ?> 
                 <div class="form-group col-12 justify-content-center align-items-end d-flex">
                     <input class="btn text-center" type="submit" valid="Submit" name="email-confirmation-btn">
                 </div>

@@ -2,6 +2,10 @@
 include './connections.php';
 
 session_start();
+
+if (isset($_SESSION['session_resident_id'])) {
+    header('location: personal-information.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

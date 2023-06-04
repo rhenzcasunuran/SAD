@@ -3,105 +3,127 @@ include './connections.php';
 
 session_start();
 
+if (isset($_SESSION['session_resident_id'])) {
+    header('location: personal-information.php');
+}
+
 if (isset($_POST['register-btn'])) {
     
     // Account Details
+    $stmt = mysqli_stmt_init($conn);
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
     $confirm_password = md5($_POST['confirmPassword']);
+    $email_address = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone_number = mysqli_real_escape_string($conn, $_POST['phone']);
     $current_date_time = date('Y-m-d H:i:s');
 
     // Check if password matches
     if ($password != $confirm_password) {
         $error[] = 'Passwords did not match!';
+    } 
+
+    // Check if username, email, and phone number already exist
+    $checkQuery = "SELECT ru.resident_username, rac.phone_number, rac.email_address 
+    FROM resident_users AS ru
+    INNER JOIN resident_address_contact AS rac 
+    ON ru.resident_id = rac.resident_id
+    WHERE ru.resident_username = ? OR rac.email_address = ? OR rac.phone_number = ?";
+
+    if (!mysqli_stmt_prepare($stmt, $checkQuery)) {
+        echo "SQL connection error";
     } else {
-        $insert = "INSERT INTO resident_users (resident_username, resident_password,
-        account_creation_date)
-        VALUES (?, ?, ?)";
-
-        $stmt = mysqli_stmt_init($conn);
-        if (!mysqli_stmt_prepare($stmt, $insert)) {
-            echo "SQL connection error";
+        mysqli_stmt_bind_param($stmt, 'sss', $username, $email_address, $phone_number);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if (mysqli_num_rows($result) > 0) {
+            $error[] = "Username, email address, or phone number already used!";
         } else {
-            // Insert to resident_users table
-            mysqli_stmt_bind_param($stmt, 'sss', $username, $password, $current_date_time);        
-            mysqli_stmt_execute($stmt);
-            $resident_id = mysqli_insert_id($conn); // Retrieve the inserted resident_id
-
-            // Personal Details
-            $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
-            $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
-            $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
-            $suffix = mysqli_real_escape_string($conn, $_POST['suffix-name']);
-            $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
-            $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
-            $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
-            // Adjust the month value to have leading zeros if necessary
-            $adjusted_birth_month = str_pad($birth_month, 2, "0", STR_PAD_LEFT);
-            // Concatenate the birthdate values into the desired format
-            $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
-            $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
-            $sex = mysqli_real_escape_string($conn, $_POST['sex']);
-            $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
-
-            $insert2 = "INSERT INTO resident_personal_details (resident_id, first_name,
-            middle_name, last_name, suffix, birth_date, birth_place, sex, civil_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            if (!mysqli_stmt_prepare($stmt, $insert2)) {
+            $insert = "INSERT INTO resident_users (resident_username, resident_password,
+            account_creation_date)
+            VALUES (?, ?, ?)";
+        
+            if (!mysqli_stmt_prepare($stmt, $insert)) {
                 echo "SQL connection error";
             } else {
-                mysqli_stmt_bind_param($stmt, 'sssssssss', $resident_id, $first_name, $middle_name,
-                $last_name, $suffix, $birthdate, $place_of_birth, $sex, $civil_status);        
-
+                // Insert to resident_users table
+                mysqli_stmt_bind_param($stmt, 'sss', $username, $password, $current_date_time);        
                 mysqli_stmt_execute($stmt);
+                $resident_id = mysqli_insert_id($conn); // Retrieve the inserted resident_id
+        
+                // Personal Details
+                $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
+                $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
+                $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
+                $suffix = mysqli_real_escape_string($conn, $_POST['suffix-name']);
+                $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
+                $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
+                $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
+                // Adjust the month value to have leading zeros if necessary
+                $adjusted_birth_month = str_pad($birth_month, 2, "0", STR_PAD_LEFT);
+                // Concatenate the birthdate values into the desired format
+                $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
+                $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
+                $sex = mysqli_real_escape_string($conn, $_POST['sex']);
+                $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
+        
+                $insert2 = "INSERT INTO resident_personal_details (resident_id, first_name,
+                middle_name, last_name, suffix, birth_date, birth_place, sex, civil_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+                if (!mysqli_stmt_prepare($stmt, $insert2)) {
+                    echo "SQL connection error";
+                } else {
+                    mysqli_stmt_bind_param($stmt, 'sssssssss', $resident_id, $first_name, $middle_name,
+                    $last_name, $suffix, $birthdate, $place_of_birth, $sex, $civil_status);        
+        
+                    mysqli_stmt_execute($stmt);
+                }
+        
+                // Contact and Address Details
+                $street_building_house = mysqli_real_escape_string($conn, $_POST['address']);
+                $province = mysqli_real_escape_string($conn, $_POST['province']);
+                $city = mysqli_real_escape_string($conn, $_POST['city']);
+                $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
+                $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
+        
+                $insert3 = "INSERT INTO resident_address_contact (resident_id, street_building_house,
+                province, city, barangay, zipcode, phone_number, email_address)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        
+                if (!mysqli_stmt_prepare($stmt, $insert3)) {
+                    echo "SQL connection error";
+                } else {
+                    mysqli_stmt_bind_param($stmt, 'ssssssss', $resident_id, $street_building_house,
+                    $province, $city, $barangay, $zipcode, $phone_number, $email_address);        
+        
+                    mysqli_stmt_execute($stmt);
+                }
+        
+                // ID Verification
+                $valid_id_type = mysqli_real_escape_string($conn, $_POST['id-type']);
+                $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
+                $valid_id_issued = mysqli_real_escape_string($conn, $_POST['id-issued-date']);
+        
+                $insert4 = "INSERT INTO resident_id_verification (resident_id, valid_id_type,
+                valid_id_number, id_issued_date)
+                VALUES (?, ?, ?, ?)";
+        
+                if (!mysqli_stmt_prepare($stmt, $insert4)) {
+                    echo "SQL connection error";
+                } else {
+                    mysqli_stmt_bind_param($stmt, 'ssss', $resident_id, $valid_id_type,
+                    $valid_id_number, $valid_id_issued);        
+        
+                    mysqli_stmt_execute($stmt);
+                }
+                
+                header('location: resident-login.php');
+        
+                // Close the statement and database connection
+                $stmt->close();
+                $conn->close();
             }
-
-            // Contact and Address Details
-            $street_building_house = mysqli_real_escape_string($conn, $_POST['address']);
-            $province = mysqli_real_escape_string($conn, $_POST['province']);
-            $city = mysqli_real_escape_string($conn, $_POST['city']);
-            $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
-            $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
-            $phone_number = mysqli_real_escape_string($conn, $_POST['phone']);
-            $email_address = mysqli_real_escape_string($conn, $_POST['email']);
-
-            $insert3 = "INSERT INTO resident_address_contact (resident_id, street_building_house,
-            province, city, barangay, zipcode, phone_number, email_address)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-            if (!mysqli_stmt_prepare($stmt, $insert3)) {
-                echo "SQL connection error";
-            } else {
-                mysqli_stmt_bind_param($stmt, 'ssssssss', $resident_id, $street_building_house,
-                $province, $city, $barangay, $zipcode, $phone_number, $email_address);        
-
-                mysqli_stmt_execute($stmt);
-            }
-
-            // ID Verification
-            $valid_id_type = mysqli_real_escape_string($conn, $_POST['id-type']);
-            $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
-            $valid_id_issued = mysqli_real_escape_string($conn, $_POST['id-issued-date']);
-
-            $insert4 = "INSERT INTO resident_id_verification (resident_id, valid_id_type,
-            valid_id_number, id_issued_date)
-            VALUES (?, ?, ?, ?)";
-
-            if (!mysqli_stmt_prepare($stmt, $insert4)) {
-                echo "SQL connection error";
-            } else {
-                mysqli_stmt_bind_param($stmt, 'ssss', $resident_id, $valid_id_type,
-                $valid_id_number, $valid_id_issued);        
-
-                mysqli_stmt_execute($stmt);
-            }
-            
-            header('location: resident-login.php');
-
-            // Close the statement and database connection
-            $stmt->close();
-            $conn->close();
         }
     }
 }
@@ -204,8 +226,14 @@ if (isset($_POST['register-btn'])) {
                             <option value="Widowed">Widowed</option>
                         </select>
                     </div>
+                    <?php
+                        if(isset($error)) {
+                            foreach($error as $error) {
+                                echo '<p class="form-label text-3 text-center text-decoration-none" style=color:red>'.$error.'</p>';
+                            };
+                        };
+                    ?> 
                 </div>
- 
                 <div class="row h-100 form-section" id="tab-2">
                     <div class="form-header col-12">Address & Contact Details</div>
                     <div class="form-group col-12">
