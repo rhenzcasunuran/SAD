@@ -69,6 +69,7 @@ if (isset($_POST['submitNewPassword'])) {
         // Execute the statement
         if (mysqli_stmt_execute($stmt)) {
             // Address added successfully
+            header("location: address-book.php");
             echo "Address added successfully.";
         } else {
             // Error occurred while executing the statement
