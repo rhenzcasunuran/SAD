@@ -64,7 +64,7 @@ if (isset($token, $otp, $resident_id)) {
                                 mysqli_stmt_bind_param($stmt, 'si', $new_password, $resident_id);
                                 mysqli_stmt_execute($stmt);
 
-                                // Set is_used to 1 and is_active to 0
+                                // Set is_used to 1
                                 $update_flags = "UPDATE forgot_password_users SET is_used = 1 WHERE token = ? AND otp = ? AND resident_id = ?";
                                 if (!mysqli_stmt_prepare($stmt, $update_flags)) {
                                     echo "SQL connection error";

@@ -35,23 +35,7 @@ if(isset($_POST['email-confirmation-btn'])) {
             // Check if the expiration time has passed
             if(strtotime($expirationTime) >= time()) {
                 // Entry has not expired, continue with password reset or other actions
-
-                // Update the `is_active` column to 1
-                $update = "UPDATE forgot_password_users SET is_active = 1 WHERE token = ? AND otp = ? AND resident_id = ? AND is_used = 0";
-                $stmt = mysqli_prepare($conn, $update);
-                mysqli_stmt_bind_param($stmt, 'ssi', $token, $otp, $resident_id);
-                mysqli_stmt_execute($stmt);
-
-                // Check if the update was successful
-                if (mysqli_stmt_affected_rows($stmt) > 0) {
-                    // Update successful
-                    // Redirect to resident-new-password.php with the query string parameters
-                    header("Location: ./resident-new-password.php?token=$token&otp=$otp&id=$resident_id");
-                } else {
-                    // Update failed
-                    $error[] =  "Failed to activate password reset link. Please try again.";
-                }
-
+                header("Location: ./resident-new-password.php?token=$token&otp=$otp&id=$resident_id");
             } else {
                 // Entry has expired
                 $error[] =  "The link has expired. Please request a new password reset link.";
