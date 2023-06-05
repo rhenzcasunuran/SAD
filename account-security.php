@@ -125,7 +125,7 @@ mysqli_close($conn);
                 </div>
                 <div class="button-container">
                     <div class="btn" onclick="closeBtn()">Close</div>
-                    <input type="submit" value="Done" class="btn" name="submitNewPassword">
+                    <input type="submit" value="Done" id="doneBtn" class="btn" name="submitNewPassword">
                 </div>
             </form>
         </div>

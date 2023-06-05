@@ -136,7 +136,7 @@ mysqli_close($conn);
                 <div class="row text-start">
                     <div class="form-group col-sm-3">
                         <label for="zipcode" class="form-label">Zipcode <span id="required">*</span></label>
-                        <input type="text" class="form-control form-field numeric-only" id="zipcode" name="zipcode" minlength="4" maxlength="4" required>
+                        <input type="text" class="form-control form-field numeric-only" id="zipcode" name="zipcode" pattern="[0-9]{4}" minlength="4" maxlength="4" required>
                     </div>
                     <div class="form-group col-sm-9">
                         <label for="phone" class="form-label">Mobile Number <small>(09123456789)</small> <span id="required">*</span></label>
@@ -145,7 +145,7 @@ mysqli_close($conn);
                 </div>
                 <div class="button-container">
                     <div class="btn" onclick="closeBtn()">Close</div>
-                    <input type="submit" class="btn" value="Done" name="submitNewPassword">
+                    <input type="submit" class="btn" value="Done" id="doneBtn" name="submitNewPassword">
                 </div>
             </form>
         </div>
@@ -252,6 +252,27 @@ mysqli_close($conn);
     <script src="./js/jquery-3.6.4.js"></script>
 
     <script>
+
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (() => {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+
+            form.classList.add('was-validated')
+            }, false)
+        })
+        })()
+
         $('.numeric-only').on('input', function(e) {
           $(this).val(function(i, v) {
             return v.replace(/[^0-9]/g, '');
