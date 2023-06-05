@@ -86,3 +86,7 @@ p {
 .info-width {
     width: 80%;
 }
+
+#doneBtn {
+    margin-bottom: 0!important;
+}
