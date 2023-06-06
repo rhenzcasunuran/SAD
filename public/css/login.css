@@ -1,0 +1,41 @@
+#login-container, #forgot-password-container {
+    width: 90%;
+    max-width: 360px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+#forgot {
+    cursor: pointer;
+}
+
+#icon-header {
+    font-size: 120px;
+}
+
+.forgot-btn {
+    width: 100%!important;
+    max-width: 200px;
+    justify-self: center;
+    align-self: center;
+    margin: 10px 0;
+}
+
+#text-container {
+    max-width: 360px;
+    text-align: center;
+    padding: 15px 30px;
+}
+
+.code {
+    margin: 20px 0;
+}
+
+.input-group-text {
+    height: 100%;
+    cursor: pointer;
+}
+
+.bx-hide, .bx-show {
+    padding: 4px;
+}
