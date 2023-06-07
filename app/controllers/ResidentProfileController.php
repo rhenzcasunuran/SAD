@@ -1,19 +1,23 @@
 <?php
 
-class ResidentProfileController {
+namespace App\Controllers;
+use DateTime;
+use App\Controllers\ManageRedirectController;
+
+require_once 'app/controllers/ManageRedirectController.php';
+
+class ResidentProfileController extends ManageRedirectController {
     private $residentUserModel;
 
-    public function __construct($residentUserModel) {
+    public function __construct($residentUserModel) 
+    {
         $this->residentUserModel = $residentUserModel;
     }
 
     public function residentProfile() 
     {
 
-        if (!isset($_SESSION['session_resident_id'])) {
-            header('location: index.php');
-            exit;
-        }
+        $this->residentCheckIfNotSession();
 
         // Get the resident user's information from the model
         $row = $this->residentUserModel->getResidentProfileInfo($_SESSION['session_resident_id']);
@@ -55,10 +59,7 @@ class ResidentProfileController {
     public function residentAddressBook() 
     {
 
-        if (!isset($_SESSION['session_resident_id'])) {
-            header('location: index.php');
-            exit;
-        }
+        $this->residentCheckIfNotSession();
 
         // Get the resident user's information from the model
         $addressesResult = $this->residentUserModel->getResidentAddressBook($_SESSION['session_resident_id']);
@@ -79,24 +80,22 @@ class ResidentProfileController {
 
             if ($result) {
                 // Address added successfully
-                header("Location: index.php?page=resident-address-book");
+                $this->redirectTo('resident-address-book');
+                exit();
             } else {
                 // Error occurred while adding the address
                 echo "Error: Unable to add address.";
             }
         }
 
-        // Include the personal information view
+        // Include the address-book view
         require_once 'app/views/address-book.php';
     }
 
     public function residentAccountSecurity() 
     {
 
-        if (!isset($_SESSION['session_resident_id'])) {
-            header('Location: index.php');
-            exit;
-        }
+        $this->residentCheckIfNotSession();
 
         // Get the resident user's information from the model
         $row = $this->residentUserModel->getResidentAccountInfo($_SESSION['session_resident_id']);
@@ -128,8 +127,8 @@ class ResidentProfileController {
                 $result = $this->residentUserModel->resetPasswordAccount($_SESSION['session_resident_id'], $oldPassword, $newPassword);
         
                 if ($result) {
-                    header('Location: index.php?page=resident-account-security');
-                    exit;
+                    $this->redirectTo('resident-account-security');
+                    exit();
                 } else {
                     echo "Old Password didn't match our records.";
                 }
@@ -138,7 +137,7 @@ class ResidentProfileController {
             }
         }        
 
-        // Include the personal information view
+        // Include the account-security view
         require_once 'app/views/account-security.php';
     }
 }

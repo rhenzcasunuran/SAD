@@ -1,13 +1,20 @@
 <?php
 
-class AuthResidentController {
+namespace App\Controllers;
+use App\Controllers\ManageRedirectController;
+
+require_once 'app/controllers/ManageRedirectController.php';
+
+class AuthResidentController extends ManageRedirectController {
     private $residentUserModel;
 
-    public function __construct($residentUserModel) {
+    public function __construct($residentUserModel) 
+    {
         $this->residentUserModel = $residentUserModel;
     }
 
-    public function loginResidentUser() {
+    public function loginResidentUser() 
+    {
         // Check if the login form is submitted
         if (isset($_POST['login-btn'])) {
             $username = $_POST['username'];
@@ -17,13 +24,27 @@ class AuthResidentController {
     
             if ($result !== false) {
                 // Authentication successful
+
+                // Enable secure session cookie
+                ini_set('session.cookie_secure', 1);
+
+                // Enable HTTP-only session cookie
+                ini_set('session.cookie_httponly', 1);
+
+                // Regenerate session ID upon successful authentication
+                session_regenerate_id(true);
+
+                // Set session expiration time
+                $sessionLifetime = 60 * 60; // 1 hour
+                session_set_cookie_params($sessionLifetime);
+
                 $_SESSION['session_resident_id'] = $result;
-                header('Location: index.php?page=personal-information');
+                $this->redirectTo('personal-information');
                 exit();
             } else {
                 // Authentication failed
                 $_SESSION['error'] = "Invalid username or password.";
-                header('Location: index.php');
+                $this->redirectTo('index');
                 exit();
             }
         }
@@ -41,7 +62,7 @@ class AuthResidentController {
         session_regenerate_id(true);
 
         // Redirect to the login page
-        header('Location: index.php');
+        $this->redirectTo('index');
         exit();
     }
 }

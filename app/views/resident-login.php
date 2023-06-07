@@ -35,7 +35,7 @@
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control form-field" id="password" name="password" required>
                 </div>
-                <a href="resident-select-contact.php" class="form-label text-2 text-center text-decoration-none" id="forgot">Forgot Password?</a>
+                <a href="index.php?page=resident-select-contact" class="form-label text-2 text-center text-decoration-none" id="forgot">Forgot Password?</a>
                 <?php
                     if(isset($_SESSION['error'])) {
                         echo '<p class="form-label text-3 text-center text-decoration-none" style="color:red">' . $_SESSION['error'] . '</p>';
@@ -49,7 +49,7 @@
             <br>
             <div class="d-flex justify-content-center align-items-center flex-column">
                 <label class="form-label text-3 fw-bold">Don't have an account?</label>
-                <a href="./resident-registration.php">
+                <a href="index.php?page=resident-registration">
                     <button class="btn">Register</button>
                 </a>
             </div>
