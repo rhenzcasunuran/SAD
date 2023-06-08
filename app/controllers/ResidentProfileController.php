@@ -140,4 +140,13 @@ class ResidentProfileController extends ManageRedirectController {
         // Include the account-security view
         require_once 'app/views/account-security.php';
     }
+
+    public function residentRequestDocx() 
+    {
+
+        $this->residentCheckIfNotSession();
+
+        // Include the account-security view
+        require_once 'app/views/request-documents.php';
+    }
 }

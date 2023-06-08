@@ -26,12 +26,12 @@
                             Home
                         </div>
                     </a>
-                    <a href="" class="col-3">
+                    <a href="index.php?page=personal-information" class="col-3">
                         <div class="text-1" id="navItem">
                             Profile
                         </div>
                     </a>
-                    <a href="request-documents.php" class="col-3">
+                    <a href="index.php?page=request-documents" class="col-3">
                         <div class="text-1" id="navItem">
                             Request
                         </div>

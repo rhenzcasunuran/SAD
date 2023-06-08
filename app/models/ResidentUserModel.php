@@ -6,10 +6,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require './vendor/mail/Exception.php';
-require './vendor/mail/PHPMailer.php';
-require './vendor/mail/SMTP.php';
-
 class ResidentUserModel {
     private $conn;
     private $token;

@@ -1,12 +1,3 @@
-<?php
-include './connections.php';
-
-session_start();
-
-if (!isset($_SESSION['session_resident_id'])) {
-    header('location: resident-login.php');
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,11 +6,11 @@ if (!isset($_SESSION['session_resident_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BRGY Aplaya</title>
 
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/boxicons.css">
-    <link rel="stylesheet" href="./css/BRGY-aplaya.css">
+    <link rel="stylesheet" href="public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="public/css/boxicons.css">
+    <link rel="stylesheet" href="public/css/BRGY-aplaya.css">
 
-    <link rel="stylesheet" href="./css/request-documents.css">
+    <link rel="stylesheet" href="public/css/request-documents.css">
 </head>
 <body>
     <!--Navbar-->
@@ -35,12 +26,12 @@ if (!isset($_SESSION['session_resident_id'])) {
                             Home
                         </div>
                     </a>
-                    <a href="personal-information.php" class="col-3">
+                    <a href="index.php?page=personal-information" class="col-3">
                         <div class="text-1" id="navItem">
                             Profile
                         </div>
                     </a>
-                    <a href="" class="col-3">
+                    <a href="index.php?page=request-documents" class="col-3">
                         <div class="text-1" id="navItem">
                             Request
                         </div>
