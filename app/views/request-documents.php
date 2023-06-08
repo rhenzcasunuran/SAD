@@ -45,7 +45,7 @@
             </div>
             <div class="col-3 p-0">
                 <div class="flex-column justify-content-end d-flex align-items-end w-100 logout-container">
-                    <button class="btn" id="logoutBtn" name="logout-btn" onclick="location.href = 'logout.php';">Logout</button>
+                    <button class="btn" id="logoutBtn" name="logout-btn" onclick="location.href = 'index.php?page=logout';">Logout</button>
                 </div> 
             </div>
         </div>
