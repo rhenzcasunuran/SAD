@@ -7,6 +7,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 // Load the database configuration
 require_once __DIR__ . '/config/database.php';
 
+// Load PHPMailer
+require_once __DIR__ . '/vendor/mail/Exception.php';
+require_once __DIR__ . '/vendor/mail/PHPMailer.php';
+require_once __DIR__ . '/vendor/mail/SMTP.php';
+
 use App\Models\ResidentUserModel;
 use App\Controllers\ResidentLoginController;
 use App\Controllers\AuthResidentController;
@@ -28,6 +33,7 @@ $routes = [
     'personal-information' => [ResidentProfileController::class, 'residentProfile'],
     'resident-address-book' => [ResidentProfileController::class, 'residentAddressBook'],
     'resident-account-security' => [ResidentProfileController::class, 'residentAccountSecurity'],
+    'request-documents'  => [ResidentProfileController::class, 'residentRequestDocx']
 ];
 
 // Secure redirection
