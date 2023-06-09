@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 07, 2023 at 06:48 PM
+-- Generation Time: Jun 09, 2023 at 04:59 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -28,8 +28,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `forgot_password_users` (
-  `reset_id` int(11) NOT NULL,
-  `resident_id` int(11) NOT NULL,
+  `reset_id` bigint(20) NOT NULL,
+  `resident_id` bigint(20) NOT NULL,
   `token` varchar(255) NOT NULL,
   `otp` int(6) NOT NULL,
   `expiration_time` datetime NOT NULL,
@@ -139,7 +139,8 @@ CREATE TABLE `resident_users` (
 -- Indexes for table `forgot_password_users`
 --
 ALTER TABLE `forgot_password_users`
-  ADD PRIMARY KEY (`reset_id`);
+  ADD PRIMARY KEY (`reset_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `personnel_users`
@@ -151,25 +152,29 @@ ALTER TABLE `personnel_users`
 -- Indexes for table `resident_address_book`
 --
 ALTER TABLE `resident_address_book`
-  ADD PRIMARY KEY (`address_entry_id`);
+  ADD PRIMARY KEY (`address_entry_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `resident_address_contact`
 --
 ALTER TABLE `resident_address_contact`
-  ADD PRIMARY KEY (`resident_address_id`);
+  ADD PRIMARY KEY (`resident_address_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `resident_id_verification`
 --
 ALTER TABLE `resident_id_verification`
-  ADD PRIMARY KEY (`resident_verification_id`);
+  ADD PRIMARY KEY (`resident_verification_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `resident_personal_details`
 --
 ALTER TABLE `resident_personal_details`
-  ADD PRIMARY KEY (`resident_detail_id`);
+  ADD PRIMARY KEY (`resident_detail_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `resident_users`
@@ -185,7 +190,7 @@ ALTER TABLE `resident_users`
 -- AUTO_INCREMENT for table `forgot_password_users`
 --
 ALTER TABLE `forgot_password_users`
-  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `reset_id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `personnel_users`
@@ -221,7 +226,43 @@ ALTER TABLE `resident_personal_details`
 -- AUTO_INCREMENT for table `resident_users`
 --
 ALTER TABLE `resident_users`
-  MODIFY `resident_id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `resident_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `forgot_password_users`
+--
+ALTER TABLE `forgot_password_users`
+  ADD CONSTRAINT `forgot_password_users_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`);
+
+--
+-- Constraints for table `resident_address_book`
+--
+ALTER TABLE `resident_address_book`
+  ADD CONSTRAINT `resident_address_book_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`),
+  ADD CONSTRAINT `resident_address_book_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`);
+
+--
+-- Constraints for table `resident_address_contact`
+--
+ALTER TABLE `resident_address_contact`
+  ADD CONSTRAINT `resident_address_contact_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`);
+
+--
+-- Constraints for table `resident_id_verification`
+--
+ALTER TABLE `resident_id_verification`
+  ADD CONSTRAINT `resident_id_verification_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`),
+  ADD CONSTRAINT `resident_id_verification_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`);
+
+--
+-- Constraints for table `resident_personal_details`
+--
+ALTER TABLE `resident_personal_details`
+  ADD CONSTRAINT `resident_personal_details_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
