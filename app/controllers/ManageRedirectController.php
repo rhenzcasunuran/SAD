@@ -4,14 +4,16 @@ namespace App\Controllers;
 
 class ManageRedirectController {
 
-    protected function residentCheckIfNotSession() {
+    protected function residentCheckIfNotSession() 
+    {
         if (!isset($_SESSION['session_resident_id'])) {
             $this->redirectTo('index');
             exit();
         }
     }
 
-    protected function residentCheckIfSession() {
+    protected function residentCheckIfSession() 
+    {
         if (isset($_SESSION['session_resident_id'])) {
             $this->redirectTo('personal-information');
             exit();

@@ -43,11 +43,11 @@ if(isset($_POST['login-btn'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BRGY Aplaya</title>
 
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/boxicons.css">
-    <link rel="stylesheet" href="./css/BRGY-aplaya.css">
+    <link rel="stylesheet" href="public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="public/css/boxicons.css">
+    <link rel="stylesheet" href="public/css/BRGY-aplaya.css">
 
-    <link rel="stylesheet" href="./css/login.css">
+    <link rel="stylesheet" href="public/css/login.css">
 </head>
 <body>
     <div id="content-container">
@@ -76,8 +76,8 @@ if(isset($_POST['login-btn'])) {
             </form>
         </div>
     </div>
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/jquery-3.6.4.js"></script>
+    <script src="public/js/bootstrap.bundle.min.js"></script>
+    <script src="public/js/jquery-3.6.4.js"></script>
 
     <script>
         // Example starter JavaScript for disabling form submissions if there are invalid fields

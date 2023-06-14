@@ -7,11 +7,11 @@ use App\Controllers\ManageRedirectController;
 require_once 'app/controllers/ManageRedirectController.php';
 
 class ResidentProfileController extends ManageRedirectController {
-    private $residentUserModel;
+    private $residentProfileModel;
 
-    public function __construct($residentUserModel) 
+    public function __construct($residentProfileModel) 
     {
-        $this->residentUserModel = $residentUserModel;
+        $this->residentProfileModel = $residentProfileModel;
     }
 
     public function residentProfile() 
@@ -20,7 +20,7 @@ class ResidentProfileController extends ManageRedirectController {
         $this->residentCheckIfNotSession();
 
         // Get the resident user's information from the model
-        $row = $this->residentUserModel->getResidentProfileInfo($_SESSION['session_resident_id']);
+        $row = $this->residentProfileModel->getResidentProfileInfo($_SESSION['session_resident_id']);
 
         if ($row) {
             // Access the data from the associative array
@@ -62,10 +62,10 @@ class ResidentProfileController extends ManageRedirectController {
         $this->residentCheckIfNotSession();
 
         // Get the resident user's information from the model
-        $addressesResult = $this->residentUserModel->getResidentAddressBook($_SESSION['session_resident_id']);
+        $addressesResult = $this->residentProfileModel->getResidentAddressBook($_SESSION['session_resident_id']);
 
         // Get the resident user's information from the model
-        $permanent_address = $this->residentUserModel->getResidentPermanentAddress($_SESSION['session_resident_id']);
+        $permanent_address = $this->residentProfileModel->getResidentPermanentAddress($_SESSION['session_resident_id']);
 
         // Check if the login form is submitted
         if (isset($_POST['submitNewPassword'])) {
@@ -76,7 +76,7 @@ class ResidentProfileController extends ManageRedirectController {
             $zipcode = $_POST['zipcode'];
             $phone = $_POST['phone'];
 
-            $result = $this->residentUserModel->addAddress($_SESSION['session_resident_id'], $address, $province, $city, $barangay, $zipcode, $phone);
+            $result = $this->residentProfileModel->addAddress($_SESSION['session_resident_id'], $address, $province, $city, $barangay, $zipcode, $phone);
 
             if ($result) {
                 // Address added successfully
@@ -98,7 +98,7 @@ class ResidentProfileController extends ManageRedirectController {
         $this->residentCheckIfNotSession();
 
         // Get the resident user's information from the model
-        $row = $this->residentUserModel->getResidentAccountInfo($_SESSION['session_resident_id']);
+        $row = $this->residentProfileModel->getResidentAccountInfo($_SESSION['session_resident_id']);
 
         // Check if the query was successful
         if (!empty($row)) {
@@ -124,7 +124,7 @@ class ResidentProfileController extends ManageRedirectController {
             if ($newPassword != $confirmPassword) {
                 echo "Password doesn't match.";
             } else if ($newPassword === $confirmPassword) {
-                $result = $this->residentUserModel->resetPasswordAccount($_SESSION['session_resident_id'], $oldPassword, $newPassword);
+                $result = $this->residentProfileModel->resetPasswordAccount($_SESSION['session_resident_id'], $oldPassword, $newPassword);
         
                 if ($result) {
                     $this->redirectTo('resident-account-security');
