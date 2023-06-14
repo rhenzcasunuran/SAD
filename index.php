@@ -12,28 +12,86 @@ require_once __DIR__ . '/vendor/mail/Exception.php';
 require_once __DIR__ . '/vendor/mail/PHPMailer.php';
 require_once __DIR__ . '/vendor/mail/SMTP.php';
 
-use App\Models\ResidentUserModel;
-use App\Controllers\ResidentLoginController;
-use App\Controllers\AuthResidentController;
-use App\Controllers\ResidentProfileController;
+// Initialize namespaced models
+use App\Models\ResidentLoginModel;
+use App\Models\ResidentProfileModel;
+use App\Models\ResidentRegisterModel;
+use App\Models\ResidentResetModel;
 
-// Create the ResidentUserModel instance
-$residentUserModel = new ResidentUserModel($conn);
+// Initialize namespaced controllers
+use App\Controllers\ResidentLoginController;
+use App\Controllers\ResidentProfileController;
+use App\Controllers\ResidentRegisterController;
+use App\Controllers\ResidentResetController;
+
+// Create resident model instances
+$residentLoginModel = new ResidentLoginModel($conn);
+$residentProfileModel = new ResidentProfileModel($conn);
+$residentRegisterModel = new ResidentRegisterModel($conn);
+$residentResetModel = new ResidentResetModel($conn);
 
 // Define the routes
 $routes = [
-    '/' => [ResidentLoginController::class, 'index'],
-    'resident-select-contact' => [ResidentLoginController::class, 'loginResetSelect'],
-    'resident-forgot-password-email' => [ResidentLoginController::class, 'emailResetPassword'],
-    'resident-email-confirmation' => [ResidentLoginController::class, 'emailCodeVerification'],
-    'resident-new-password' => [ResidentLoginController::class, 'requestNewPassword'],
-    'resident-registration' => [ResidentLoginController::class, 'setResidentRegistration'],
-    'resident-auth' => [AuthResidentController::class, 'loginResidentUser'],
-    'logout' => [AuthResidentController::class, 'logoutResidentUser'],
-    'personal-information' => [ResidentProfileController::class, 'residentProfile'],
-    'resident-address-book' => [ResidentProfileController::class, 'residentAddressBook'],
-    'resident-account-security' => [ResidentProfileController::class, 'residentAccountSecurity'],
-    'request-documents'  => [ResidentProfileController::class, 'residentRequestDocx']
+    '/' => [
+        'controller' => ResidentLoginController::class,
+        'method' => 'index',
+        'models' => [$residentLoginModel]
+    ],
+    'resident-auth' => [
+        'controller' => ResidentLoginController::class,
+        'method' => 'loginResidentUser',
+        'models' => [$residentLoginModel]
+    ],
+    'logout' => [
+        'controller' => ResidentLoginController::class,
+        'method' => 'logoutResidentUser',
+        'models' => [$residentLoginModel]
+    ],
+    'resident-select-contact' => [
+        'controller' => ResidentResetController::class,
+        'method' => 'loginResetSelect',
+        'models' => [$residentResetModel]
+    ],
+    'resident-forgot-password-email' => [
+        'controller' => ResidentResetController::class,
+        'method' => 'emailResetPassword',
+        'models' => [$residentResetModel]
+    ],
+    'resident-email-confirmation' => [
+        'controller' => ResidentResetController::class,
+        'method' => 'emailCodeVerification',
+        'models' => [$residentResetModel]
+    ],
+    'resident-new-password' => [
+        'controller' => ResidentResetController::class,
+        'method' => 'requestNewPassword',
+        'models' => [$residentResetModel]
+    ],
+    'resident-registration' => [
+        'controller' => ResidentRegisterController::class,
+        'method' => 'setResidentRegistration',
+        'models' => [$residentRegisterModel]
+    ],
+    'personal-information' => [
+        'controller' => ResidentProfileController::class,
+        'method' => 'residentProfile',
+        'models' => [$residentProfileModel]
+    ],
+    'resident-address-book' => [
+        'controller' => ResidentProfileController::class,
+        'method' => 'residentAddressBook',
+        'models' => [$residentProfileModel]
+    ],
+    'resident-account-security' => [
+        'controller' => ResidentProfileController::class,
+        'method' => 'residentAccountSecurity',
+        'models' => [$residentProfileModel]
+    ],
+    'request-documents'  => [
+        'controller' => ResidentProfileController::class,
+        'method' => 'residentRequestDocx',
+        'models' => [$residentProfileModel]
+    ]
 ];
 
 // Secure redirection
@@ -48,12 +106,18 @@ if ($page === '' || !preg_match('/^[a-zA-Z0-9\-\/]+$/', $page)) {
 // Check if the requested page exists in the routes
 if (array_key_exists($page, $routes)) {
     $route = $routes[$page];
-    $controllerName = $route[0];
-    $methodName = $route[1];
+    $controllerClass = $route['controller'];
+    $methodName = $route['method'];
+    $models = $route['models']; // Retrieve the models associated with the route
 
     // Create the controller instance
-    if (class_exists($controllerName)) {
-        $controller = new $controllerName($residentUserModel);
+    if (class_exists($controllerClass)) {
+        $modelInstances = [];
+        foreach ($models as $model) {
+            $modelInstances[] = $model;
+        }
+
+        $controller = new $controllerClass(...$modelInstances);
 
         // Check if the method exists in the controller
         if (method_exists($controller, $methodName)) {
@@ -61,11 +125,8 @@ if (array_key_exists($page, $routes)) {
             $controller->$methodName();
             exit(); // Exit after executing the controller method
         }
-    } else {
-        header('Location: index.php');
-        exit();
     }
-} 
+}
 
 // Handle the case where the page or method doesn't exist
 header('Location: index.php');
