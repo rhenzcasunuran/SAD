@@ -281,7 +281,7 @@
 
     <script>
         $("#signInAccount").on('click', function() {
-            location.href = "../../index.html";
+            location.href = "../../index.php";
         })
 
         $(".pull").on('click', function() {
