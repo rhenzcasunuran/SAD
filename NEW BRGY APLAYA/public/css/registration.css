@@ -28,6 +28,10 @@
     height: fit-content;
 }
 
+#progressHeader {
+    padding: 0 30px;
+}
+
 #progressContainer .step {
     position: relative;
     text-align: center;
