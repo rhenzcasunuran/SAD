@@ -30,3 +30,12 @@
 .code {
     margin: 20px 0;
 }
+
+.input-group-text {
+    height: 100%;
+    cursor: pointer;
+}
+
+.bx-hide, .bx-show {
+    padding: 4px;
+}

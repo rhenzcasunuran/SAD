@@ -40,10 +40,14 @@ $(function() {
   });
 
   var $sections = $(".form-section");
+  var $progress = $(".bullet");
+  var $header = $(".header");
 
   function navigateTo(index) {
     // Mark the current section with the class 'current'
     $sections.removeClass("current").eq(index).addClass("current");
+    $progress.eq(index).addClass("active");
+    $header.removeClass("current").eq(index).addClass("current");
     // Show only the navigation buttons that make sense for the current section:
     $(".form-navigation .previous").toggle(index > 0);
     var atTheEnd = index >= $sections.length - 1;
@@ -59,13 +63,21 @@ $(function() {
   // Previous button is easy, just go back
   $(".form-navigation .previous").click(function() {	
     $(".popover").hide(); 
+    $progress.eq(curIndex()).removeClass("active");
     navigateTo(curIndex() - 1);
+    $progress.eq(curIndex()).addClass("animate-reverse"); // Add animate-reverse class
+    $progress.eq(curIndex()).removeClass("success");
+    setTimeout(function() {
+      $progress.eq(curIndex()).removeClass("animate-reverse"); // Remove animate-reverse class
+    }, 800);
   });
 
   // Next button goes forward iff current block validates
   $(".form-navigation .next").click(function() {  
     if ($(".form-container").parsley().validate({ group: "block-" + curIndex() })) {
       $(".popover").hide(); 
+      $progress.eq(curIndex()).addClass("active");
+      $progress.eq(curIndex()).addClass("success");
 		navigateTo(curIndex() + 1);
 	 }
   });

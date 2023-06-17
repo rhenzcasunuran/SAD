@@ -1,4 +1,3 @@
-
 <?php
 include './connections.php';
 

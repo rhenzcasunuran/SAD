@@ -3,68 +3,127 @@ include './connections.php';
 
 session_start();
 
+if (isset($_SESSION['session_resident_id'])) {
+    header('location: personal-information.php');
+}
+
 if (isset($_POST['register-btn'])) {
-    // Get the form values and escape them
+    
+    // Account Details
+    $stmt = mysqli_stmt_init($conn);
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
     $confirm_password = md5($_POST['confirmPassword']);
-    $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
-    $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
-    $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
-    $suffix = mysqli_real_escape_string($conn, $_POST['suffix-name']);
-    $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
-    $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
-    $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
-    $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
-    $sex = mysqli_real_escape_string($conn, $_POST['sex']);
-    $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
-    $street_building_house = mysqli_real_escape_string($conn, $_POST['address']);
-    $province = mysqli_real_escape_string($conn, $_POST['province']);
-    $city = mysqli_real_escape_string($conn, $_POST['city']);
-    $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
-    $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
-    $phone_number = mysqli_real_escape_string($conn, $_POST['phone']);
     $email_address = mysqli_real_escape_string($conn, $_POST['email']);
-    $valid_id_type = mysqli_real_escape_string($conn, $_POST['id-type']);
-    $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
-    $valid_id_expiry = mysqli_real_escape_string($conn, $_POST['id-expiry-date']);
-
-    // Check if file input is set before using it
-    if (isset($_FILES['id-selfie']) && $_FILES['id-selfie']['error'] == 0) {
-        $filename = $_FILES['id-selfie']['name'];
-        $tempname = $_FILES['id-selfie']['tmp_name'];
-        $folder = "uploads/" . $filename;
-        move_uploaded_file($tempname, $folder);
-    } else {
-        $filename = "";
-    }
-
+    $phone_number = mysqli_real_escape_string($conn, $_POST['phone']);
     $current_date_time = date('Y-m-d H:i:s');
 
+    // Check if password matches
     if ($password != $confirm_password) {
         $error[] = 'Passwords did not match!';
+    } 
+
+    // Check if username, email, and phone number already exist
+    $checkQuery = "SELECT ru.resident_username, rac.phone_number, rac.email_address 
+    FROM resident_users AS ru
+    INNER JOIN resident_address_contact AS rac 
+    ON ru.resident_id = rac.resident_id
+    WHERE ru.resident_username = ? OR rac.email_address = ? OR rac.phone_number = ?";
+
+    if (!mysqli_stmt_prepare($stmt, $checkQuery)) {
+        echo "SQL connection error";
     } else {
-        // Prepare and execute the INSERT statement
-        $insert = "INSERT INTO resident_users (username, password, first_name,
-        middle_name, last_name, suffix, birth_month, birth_day,
-        birth_year, place_of_birth, sex, civil_status, street_building_house,
-        province, city, barangay, zipcode, phone_number, email_address,
-        valid_id_type, valid_id_number, valid_id_expiry, selfie_path, time_created)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = mysqli_stmt_init($conn);
-        if (!mysqli_stmt_prepare($stmt, $insert)) {
-            echo "SQL connection error";
+        mysqli_stmt_bind_param($stmt, 'sss', $username, $email_address, $phone_number);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if (mysqli_num_rows($result) > 0) {
+            $error[] = "Username, email address, or phone number already used!";
         } else {
-            // Use prepared statements to bind parameters securely
-            mysqli_stmt_bind_param($stmt, 'ssssssssssssssssssssssss', $username, $password,
-                $first_name, $middle_name, $last_name, $suffix, $birth_month, $birth_day,
-                $birth_year, $place_of_birth, $sex, $civil_status, $street_building_house,
-                $province, $city, $barangay, $zipcode, $phone_number, $email_address,
-                $valid_id_type, $valid_id_number, $valid_id_expiry, $filename, $current_date_time);
-
-            mysqli_stmt_execute($stmt);
-            header('location: resident-login.php');
+            $insert = "INSERT INTO resident_users (resident_username, resident_password,
+            account_creation_date)
+            VALUES (?, ?, ?)";
+        
+            if (!mysqli_stmt_prepare($stmt, $insert)) {
+                echo "SQL connection error";
+            } else {
+                // Insert to resident_users table
+                mysqli_stmt_bind_param($stmt, 'sss', $username, $password, $current_date_time);        
+                mysqli_stmt_execute($stmt);
+                $resident_id = mysqli_insert_id($conn); // Retrieve the inserted resident_id
+        
+                // Personal Details
+                $first_name = mysqli_real_escape_string($conn, $_POST['first-name']);
+                $middle_name = mysqli_real_escape_string($conn, $_POST['middle-name']);
+                $last_name = mysqli_real_escape_string($conn, $_POST['last-name']);
+                $suffix = mysqli_real_escape_string($conn, $_POST['suffix-name']);
+                $birth_month = mysqli_real_escape_string($conn, $_POST['month']);
+                $birth_day = mysqli_real_escape_string($conn, $_POST['day']);
+                $birth_year = mysqli_real_escape_string($conn, $_POST['year']);
+                // Adjust the month value to have leading zeros if necessary
+                $adjusted_birth_month = str_pad($birth_month, 2, "0", STR_PAD_LEFT);
+                // Concatenate the birthdate values into the desired format
+                $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
+                $place_of_birth = mysqli_real_escape_string($conn, $_POST['birthplace']);
+                $sex = mysqli_real_escape_string($conn, $_POST['sex']);
+                $civil_status = mysqli_real_escape_string($conn, $_POST['civil-status']);
+        
+                $insert2 = "INSERT INTO resident_personal_details (resident_id, first_name,
+                middle_name, last_name, suffix, birth_date, birth_place, sex, civil_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+                if (!mysqli_stmt_prepare($stmt, $insert2)) {
+                    echo "SQL connection error";
+                } else {
+                    mysqli_stmt_bind_param($stmt, 'sssssssss', $resident_id, $first_name, $middle_name,
+                    $last_name, $suffix, $birthdate, $place_of_birth, $sex, $civil_status);        
+        
+                    mysqli_stmt_execute($stmt);
+                }
+        
+                // Contact and Address Details
+                $street_building_house = mysqli_real_escape_string($conn, $_POST['address']);
+                $province = mysqli_real_escape_string($conn, $_POST['province']);
+                $city = mysqli_real_escape_string($conn, $_POST['city']);
+                $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
+                $zipcode = mysqli_real_escape_string($conn, $_POST['zipcode']);
+        
+                $insert3 = "INSERT INTO resident_address_contact (resident_id, street_building_house,
+                province, city, barangay, zipcode, phone_number, email_address)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        
+                if (!mysqli_stmt_prepare($stmt, $insert3)) {
+                    echo "SQL connection error";
+                } else {
+                    mysqli_stmt_bind_param($stmt, 'ssssssss', $resident_id, $street_building_house,
+                    $province, $city, $barangay, $zipcode, $phone_number, $email_address);        
+        
+                    mysqli_stmt_execute($stmt);
+                }
+        
+                // ID Verification
+                $valid_id_type = mysqli_real_escape_string($conn, $_POST['id-type']);
+                $valid_id_number = mysqli_real_escape_string($conn, $_POST['id-number']);
+                $valid_id_issued = mysqli_real_escape_string($conn, $_POST['id-issued-date']);
+        
+                $insert4 = "INSERT INTO resident_id_verification (resident_id, valid_id_type,
+                valid_id_number, id_issued_date)
+                VALUES (?, ?, ?, ?)";
+        
+                if (!mysqli_stmt_prepare($stmt, $insert4)) {
+                    echo "SQL connection error";
+                } else {
+                    mysqli_stmt_bind_param($stmt, 'ssss', $resident_id, $valid_id_type,
+                    $valid_id_number, $valid_id_issued);        
+        
+                    mysqli_stmt_execute($stmt);
+                }
+                
+                header('location: resident-login.php');
+        
+                // Close the statement and database connection
+                $stmt->close();
+                $conn->close();
+            }
         }
     }
 }
@@ -119,7 +178,7 @@ if (isset($_POST['register-btn'])) {
                         <label for="first-name" class="form-label">First Name <span id="required">*</span></label>
                         <input type="text" class="form-control form-field letters-only" id="first-name" name="first-name" required>
                     </div>
-                    <div class="form-group col-sm-5" class="form-label has-feedback">
+                    <div class="form-group col-sm-5 has-feedback">
                         <label for="middle-name" class="form-label">Middle Name</label>
                         <input type="text" class="form-control letters-only" id="middle-name" name="middle-name">
                     </div>
@@ -133,15 +192,15 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-sm-5 has-feedback">
                         <label class="form-label">Date of Birth <span id="required">*</span></label>
-                        <select id="month" class="form-select form-field" id="suffix-name" name="month" title="Month" onchange="change_month(this)"  required></select>
+                        <select id="month" class="form-select form-field" id="suffix-name" name="month" title="Birthmonth" onchange="change_month(this)"  required></select>
                     </div>
                     <div class="form-group col-sm-3 has-feedback">
                         <label class="form-label"><span id="required">*</span></label>
-                        <select id="day" class="form-select form-field" id="suffix-name" name="day" title="Day"  required></select>
+                        <select id="day" class="form-select form-field" id="suffix-name" name="day" title="Birthday"  required></select>
                     </div>
                     <div class="form-group col-sm-4 has-feedback">
                         <label class="form-label"><span id="required">*</span></label>
-                        <select id="year" class="form-select form-field" id="suffix-name" name="year" title="Year" onchange="change_year(this)"  required></select>
+                        <select id="year" class="form-select form-field" id="suffix-name" name="year" title="Birthyear" onchange="change_year(this)"  required></select>
                     </div>
                     <div class="form-group col-sm-5 has-feedback">
                         <label for="birthplace" class="form-label">Place of Birth <span id="required">*</span></label>
@@ -159,17 +218,24 @@ if (isset($_POST['register-btn'])) {
                         <label for="civil-status" class="form-label">Civil Status <span id="required">*</span></label>
                         <select class="form-select form-field" id="civil-status" name="civil-status"  required>
                             <option hidden value=""></option>
-                            <option value="single">Single</option>
-                            <option value="marrie">Married</option>
-                            <option value="divorce">Divorce</option>
-                            <option value="divorce">Seperated</option>
-                            <option value="widowed">Widowed</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Live in">Live in</option>
+                            <option value="Divorce">Divorce</option>
+                            <option value="Seperated">Seperated</option>
+                            <option value="Widowed">Widowed</option>
                         </select>
                     </div>
+                    <?php
+                        if(isset($error)) {
+                            foreach($error as $error) {
+                                echo '<p class="form-label text-3 text-center text-decoration-none" style=color:red>'.$error.'</p>';
+                            };
+                        };
+                    ?> 
                 </div>
- 
                 <div class="row h-100 form-section" id="tab-2">
-                    <div class="form-header col-12">Contact Details</div>
+                    <div class="form-header col-12">Address & Contact Details</div>
                     <div class="form-group col-12">
                         <label for="address" class="form-label">Street/Building/House No. <span id="required">*</span></label>
                         <input type="text" class="form-control form-field" id="address" name="address" required>
@@ -177,22 +243,19 @@ if (isset($_POST['register-btn'])) {
                     <div class="form-group col-sm-4">
                         <label for="province" class="form-label">Province <span id="required">*</span></label>
                         <select class="form-select form-field" id="province" name="province" required>
-                            <option hidden value=""></option>
-                            <option value="laguna">Laguna</option>
+                            <option value="Laguna" selected>Laguna</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-4">
                         <label for="city" class="form-label">City/Municipality <span id="required">*</span></label>
                         <select class="form-select form-field" id="city" name="city" required>
-                            <option hidden value=""></option>
-                            <option value="santa rosa">Santa Rosa</option>
+                            <option value="Santa Rosa" selected>Santa Rosa</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-4">
                         <label for="barangay" class="form-label">Barangay <span id="required">*</span></label>
                         <select class="form-select form-field" id="barangay" name="barangay" required>
-                            <option hidden value=""></option>
-                            <option value="aplaya">Aplaya</option>
+                            <option value="Aplaya" selected>Aplaya</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-3">
@@ -200,7 +263,7 @@ if (isset($_POST['register-btn'])) {
                         <input type="text" class="form-control form-field numeric-only" id="zipcode" name="zipcode" minlength="4" maxlength="4" required>
                     </div>
                     <div class="form-group col-sm-9">
-                        <label for="phone" class="form-label">Phone Number <small>(09123456789)</small> <span id="required">*</span></label>
+                        <label for="phone" class="form-label">Mobile Number <small>(09123456789)</small> <span id="required">*</span></label>
                         <input type="tel" class="form-control form-field numeric-only" id="phone" name="phone" pattern="[0-9]{11}" maxlength="11" required>
                     </div>
                     <div class="form-group col-12">
@@ -243,11 +306,11 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-sm-6">
                         <label for="id" class="form-label">ID Number <span id="required">*</span></label>
-                        <input type="text" class="form-control form-field numeric-w-hyphen" id="id" name="id-number" required>
+                        <input type="text" class="form-control form-field numeric-w-hyphen" id="id" name="id-number" required maxlength="36">
                     </div>
                     <div class="form-group col-sm-6">
-                        <label for="id" class="form-label">ID Expiration Date <span id="required">*</span></label>
-                        <input type="date" class="form-control form-field" id="id" name="id-expiry-date" required>
+                        <label for="id" class="form-label">ID Issued Date <span id="required">*</span></label>
+                        <input type="date" class="form-control form-field" id="id" name="id-issued-date" required>
                     </div>
                     <div class="form-group row">
                         <div class="col-4" id="icon-container">
@@ -268,11 +331,21 @@ if (isset($_POST['register-btn'])) {
                     </div>
                     <div class="form-group col-12">
                         <label for="password" class="form-label">Password <span id="required">*</span></label>
-                        <input type="password" class="form-control form-field" id="password" name="password" required>
+                        <div class="input-group" id="show-hide-password">
+                            <input type="password" class="form-control form-field password" id="password" name="password" required>
+                            <div class="input-group-text">
+                                <i class="bx bx-hide" aria-hidden="true"></i>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-12">
                         <label for="confirm-password" class="form-label">Confirm Password <span id="required">*</span></label>
-                        <input type="password" class="form-control form-field" id="confirm-password" name="confirmPassword" required>
+                        <div class="input-group" id="show-hide-confirm-password">
+                            <input type="password" class="form-control form-field" id="confirm-password" name="confirmPassword" required>
+                            <div class="input-group-text">
+                                <i class="bx bx-hide" aria-hidden="true"></i>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-12" id="terms-conditions-container">
                         <input id="terms-conditions" type="checkbox" class="form-field" required>
@@ -284,6 +357,7 @@ if (isset($_POST['register-btn'])) {
                     <button type="button" class="previous btn pull-left">&lt; Previous</button>
                     <button type="button" class="next btn pull-right">Next &gt;</button>
                     <input class="btn btn-default pull-right" type="submit" value="Submit" name="register-btn">
+                    <span class="clearfix"></span>
                 </div>
             </form>
     </div>
@@ -317,6 +391,26 @@ if (isset($_POST['register-btn'])) {
         })
         })()
 
+        //Paste Validation
+        $('.letters-only').on('input', function(e) {
+          $(this).val(function(i, v) {
+            return v.replace(/[^a-zA-Z\s]/g, '');
+          });
+        });
+
+        $('.numeric-only').on('input', function(e) {
+          $(this).val(function(i, v) {
+            return v.replace(/[^0-9]/g, '');
+          });
+        });
+
+        $('.numeric-w-hyphen').on('input', function(e) {
+          $(this).val(function(i, v) {
+            return v.replace(/[^0-9\-]/g, '');
+          });
+        });
+
+
         //Letter Validation
         $('.letters-only').keypress(function (e) {
           var txt = String.fromCharCode(e.which);
@@ -347,6 +441,32 @@ if (isset($_POST['register-btn'])) {
           if (!txt.match(/[A-Za-z0-9_]/)) {
               return false;
           }
+        });
+
+        $("#show-hide-password .input-group-text").on('click', function(e) {
+            e.preventDefault();
+            if($('#show-hide-password input').attr("type") === "text"){
+                $('#show-hide-password input').attr('type', 'password');
+                $('#show-hide-password i').addClass( "bx-hide" );
+                $('#show-hide-password i').removeClass( "bx-show" );
+            }else if($('#show-hide-password input').attr("type") === "password"){
+                $('#show-hide-password input').attr('type', 'text');
+                $('#show-hide-password i').removeClass( "bx-hide" );
+                $('#show-hide-password i').addClass( "bx-show" );
+            }
+        });
+
+        $("#show-hide-confirm-password .input-group-text").on('click', function(e) {
+            e.preventDefault();
+            if($('#show-hide-confirm-password input').attr("type") === "text"){
+                $('#show-hide-confirm-password input').attr('type', 'password');
+                $('#show-hide-confirm-password i').addClass( "bx-hide" );
+                $('#show-hide-confirm-password i').removeClass( "bx-show" );
+            }else if($('#show-hide-confirm-password input').attr("type") === "password"){
+                $('#show-hide-confirm-password input').attr('type', 'text');
+                $('#show-hide-confirm-password i').removeClass( "bx-hide" );
+                $('#show-hide-confirm-password i').addClass( "bx-show" );
+            }
         });
     </script>
 </body>

@@ -1,13 +1,18 @@
 <?php
+// Load environment variables from a separate configuration file
+$config = parse_ini_file('./config/config.ini', true);
 
-$server= "localhost";
-$username = "root";
-$password = "";
-$dbname = "barangay_data";
+// Database configuration
+$dbHost = $config['database']['host'];
+$dbUser = $config['database']['username'];
+$dbPass = $config['database']['password'];
+$dbName = $config['database']['dbname'];
 
-$conn = mysqli_connect($server, $username, $password, $dbname);
+// Establish a secure database connection
+$conn = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
 
-if(!$conn) {
-    die("Connection Failed:".mysqli_connect_error());
+// Check if the connection was successful
+if (!$conn) {
+    die("Connection Failed: " . mysqli_connect_error());
 }
 ?>

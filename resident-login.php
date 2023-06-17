@@ -4,7 +4,7 @@ include './connections.php';
 session_start();
 
 if (isset($_SESSION['session_resident_id'])) {
-    header('location: resident-logged-in.php');
+    header('location: personal-information.php');
 }
 
 if(isset($_POST['login-btn'])) {
@@ -12,8 +12,8 @@ if(isset($_POST['login-btn'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
 
-    $select = "SELECT * FROM resident_users WHERE username = ? AND password = ?";
-
+    $select = "SELECT * FROM resident_users WHERE resident_username = ? AND resident_password = ? ";
+    
     $stmt = mysqli_stmt_init($conn);
 
     if(!mysqli_stmt_prepare($stmt, $select)) {
@@ -31,10 +31,10 @@ if(isset($_POST['login-btn'])) {
             $row = mysqli_fetch_array($result);
     
             $_SESSION['session_resident_id'] = $row['resident_id'];
-            header('location: resident-logged-in.php');
+            header('location: personal-information.php');
 
         } else {
-            $error[] = 'User not found';
+            $error[] = "Username & Password doesn't match.";
         }
     }
 }
@@ -54,6 +54,16 @@ if(isset($_POST['login-btn'])) {
     <link rel="stylesheet" href="./css/login.css">
 </head>
 <body>
+    <!--Navbar-->
+    <div class="login-bar" id="top-var">
+        <div class="text-1">
+            Welcome to E-Playa
+        </div>
+        <div class="text-1">
+            About
+        </div>
+    </div>
+    <!--Content-->
     <div id="content-container">
         <div class="flex-column justify-content-center d-flex align-items-center w-100">
             <form action="" method="POST" class="form-container needs-validation" id="login-container">
