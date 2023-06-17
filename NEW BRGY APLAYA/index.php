@@ -75,7 +75,7 @@
 
     <script>
         $(".createAccount").on('click', function() {
-            location.href = "app/views/resident-registration.html";
+            location.href = "app/views/resident-registration.php";
         })
     </script>
 </body>
