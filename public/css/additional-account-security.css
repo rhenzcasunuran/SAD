@@ -1,0 +1,68 @@
+#resetPasswordBtn {
+    max-width: 300px;
+    padding: 10px;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+#resetPasswordBtn:hover {
+    background-color: var(--main-color);
+}
+
+.popup-background {
+    width: 100vw!important;
+    height: 100vh!important;
+    background-color: rgba(0, 0, 0, 0.5)!important;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 100!important;
+    margin: 0!important;
+    padding: 0!important;
+}
+
+.popup-container {
+    width: max-content!important;
+    min-width: 450px!important;
+    max-width: 410px!important;
+    background-color: #5B5B5B!important;
+    border-radius: 30px!important;
+    text-align: center;
+    align-items: start;
+    display: flex;
+    justify-content: center;
+    padding: calc(18px + 1vw)!important;
+    color: #E9E9E9;
+}
+
+#resetPasswordForm h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+#resetPasswordForm label {
+    font-size: 18px;
+    font-weight:normal;
+}
+
+#resetPasswordForm input {
+    margin-bottom: 1rem;
+}
+
+#oldPassword:valid {
+    background-image: none !important;
+    padding-right: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.input-group-text {
+    height: 100%;
+    cursor: pointer;
+}
+
+.bx-hide, .bx-show {
+    padding: 4px;
+}

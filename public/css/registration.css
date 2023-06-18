@@ -1,0 +1,308 @@
+#leftWrapper {
+    flex-direction: column;
+}
+
+#progress {
+    display: flex;
+    height: 400px;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+#leftWrapper {
+    margin-top: 40px;
+}
+
+#progressContainer {
+    padding: 50px 3.906vw;
+    border-radius: 30px;
+    font-weight: bolder;
+    min-width: 320px;
+    max-width: 680px;
+    width: 39.453vw;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin: 0;
+    height: fit-content;
+}
+
+#progressHeader {
+    padding: 0 30px;
+}
+
+#progressContainer .step {
+    position: relative;
+    text-align: center;
+    margin-left: 39px;
+}
+
+#A {
+    margin-left: 0!important;
+}
+
+.step .bullet {
+    position: relative;
+    height: 50px;
+    width: 50px;
+    border: 2px var(--black-color) solid;
+    display: inline-block;
+    border-radius: 50%;
+    line-height: 50px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+#first {
+    border-color: var(--primary-secondary-color);
+    background-color: var(--primary-secondary-color);
+    color: var(--white-color);
+}
+
+.step .bullet.active {
+    border-color: var(--primary-secondary-color)!important;
+    background-color: var(--primary-secondary-color)!important;
+    color: var(--white-color);
+    transition-delay: 0.8s;
+}
+
+.step .bullet.success {
+    border-color: var(--primary-quaternary-color)!important;
+    background-color: var(--primary-quaternary-color)!important;
+    color: var(--white-color);
+    transition: 0.3s;
+}
+
+.step:last-child .bullet:before, .step:last-child .bullet:after {
+    display: none;
+}
+
+.step .bullet:before, .step .bullet:after {
+    position: absolute;
+    content: '';
+    height: 5px;
+    width: 40px;
+    max-width: 80px;
+    top: 45%;
+    right: -41px;
+    background: var(--black-color);
+}
+
+.step .bullet.success:after {
+    background-color: var(--primary-quaternary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: animate 0.8s linear forwards;
+}
+
+@keyframes animate {
+    100%{
+        transform: scaleX(1);
+    }
+}
+
+.step .bullet.animate-reverse:after {
+    background-color: var(--primary-quaternary-color);
+    transform: scaleX(1);
+    transform-origin: left;
+    animation: animate-reverse 0.8s linear forwards;
+  }
+  
+  @keyframes animate-reverse {
+    100% {
+      transform: scaleX(0);
+    }
+  }
+
+.step span {
+    line-height: 48px;
+    font-weight: bold;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+}
+
+.steps {
+    font-size: 70px;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--black-color);
+    z-index: 1;
+}
+
+#progressHeader .header {
+    text-align: center;
+    font-size: 80px;
+    display: none;
+    text-transform: capitalize;
+    color: var(--primary-secondary-color);
+}
+
+#progressHeader .header.current {
+    display: block;
+}
+
+#registrationContainer {
+    background-color: var(--white-color);
+    color: var(--black-color);
+    padding: 50px;
+    border-radius: 30px;
+    font-weight: bolder;
+    min-width: 320px;
+    max-width: 680px;
+    width: 95%;
+    text-align: start;
+}
+
+.form-section {
+    display: none;
+}
+
+.form-section.current {
+    display: flex;
+}
+
+.input-group-text {
+    height: 100%;
+    cursor: pointer;
+    padding: 0;
+}
+
+.bx-hide, .bx-show {
+    padding: 13px;
+    font-size: 18px;
+}
+
+.form-group {
+    padding: 10px;
+}
+
+button {
+    border: none;
+}
+
+.form-navigation {
+    padding: 20px;
+    gap: 8px;
+    width: 100%;
+}
+
+.form-control, .form-select {
+    background-color: var(--white-color)!important;
+    padding: 10px 24px;
+    border-radius: 20px;
+    outline: 2px var(--black-color) solid;
+    outline-offset: -2px;
+}
+
+.form-select {
+    cursor: pointer;
+}
+
+form .filled-button {
+    min-width: 150px;
+}
+
+#required {
+    color: rgb(227, 15, 15);
+    font-weight: normal;
+}
+
+#form-container {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+#topvarContainer {
+    right: 0;
+    width: 100%;
+}
+
+#terms-conditions-container {
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#terms-conditions-container label {
+    margin-bottom: 0!important;
+}
+
+input[type="checkbox"] {
+    cursor: pointer;
+}
+
+#termsConditions {
+    text-decoration: underline;
+    color: var(--secondary-primary-color);
+    cursor: pointer;
+}
+
+.form-navigation .filled-button {
+    border: none;
+}
+
+form .form-control, form .form-select {
+    background-color: var(--primary-quaternary-color-50)!important;
+}
+
+#form-container {
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+}
+
+#province, #city, #barangay, #zipcode {
+    cursor: default;
+}
+
+@media (max-width: 1024px) {
+    #rightWrapper, #leftWrapper {
+        width: 100%!important;
+        margin-top: 0;
+    }
+
+    #registrationContainer {
+        margin-top: 0;
+    }
+
+    #leftWrapper {
+        margin-top: 40px;
+        padding-bottom: 0;
+    }
+
+    #progress {
+        height: fit-content;
+    }
+
+    @media (max-height: 1300px) {
+        #content {
+            margin-top: 130px;
+        }
+    }
+}
+
+@media (max-width: 620px) {
+    #progressHeader .header {
+        font-size: 50px;
+    }
+
+    .steps {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 405px) {
+    #leftWrapper {
+        margin-top: 120px;
+    }
+
+    #registrationContainer {
+        padding: 50px 30px;
+    }
+}
