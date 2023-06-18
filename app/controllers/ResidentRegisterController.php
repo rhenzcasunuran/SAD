@@ -23,9 +23,9 @@ class ResidentRegisterController extends ManageRedirectController {
 
             $username = $_POST['username'];
             $password = md5($_POST['password']);
-            $confirm_password = md5($_POST['confirmPassword']);
-            $email_address = $_POST['email'];
-            $phone_number = $_POST['phone'];
+            $confirm_password = md5($_POST['confirm_password']);
+            $email_address = $_POST['email_address'];
+            $phone_number = $_POST['phone_number'];
             $current_date_time = date('Y-m-d H:i:s');
 
             // Check if password matches
@@ -40,10 +40,10 @@ class ResidentRegisterController extends ManageRedirectController {
                 $resident_id = $this->residentRegisterModel->registerResidentUser($username, $password, $current_date_time);
 
                 // Personal Details
-                $first_name = $_POST['first-name'];
-                $middle_name = $_POST['middle-name'];
-                $last_name = $_POST['last-name'];
-                $suffix = $_POST['suffix-name'];
+                $first_name = $_POST['first_name'];
+                $middle_name = $_POST['middle_name'];
+                $last_name = $_POST['last_name'];
+                $suffix = $_POST['suffix'];
                 $birth_month = $_POST['month'];
                 $birth_day = $_POST['day'];
                 $birth_year = $_POST['year'];
@@ -53,12 +53,12 @@ class ResidentRegisterController extends ManageRedirectController {
                 $birthdate = $birth_year . "-" . $adjusted_birth_month . "-" . $birth_day;
                 $place_of_birth = $_POST['birthplace'];
                 $sex = $_POST['sex'];
-                $civil_status = $_POST['civil-status'];
+                $civil_status = $_POST['civil_status'];
 
                 $result2 = $this->residentRegisterModel->registerResidentDetails($resident_id, $first_name, $middle_name, $last_name, $suffix, $birthdate, $place_of_birth, $sex, $civil_status);
 
                 // Contact and Address Details
-                $street_building_house = $_POST['address'];
+                $street_building_house = $_POST['street_building_house'];
                 $province = $_POST['province'];
                 $city = $_POST['city'];
                 $barangay = $_POST['barangay'];
@@ -67,9 +67,9 @@ class ResidentRegisterController extends ManageRedirectController {
                 $result3 = $this->residentRegisterModel->registerResidentContact($resident_id, $street_building_house, $province, $city, $barangay, $zipcode, $phone_number, $email_address);
 
                 // ID Verification
-                $valid_id_type = $_POST['id-type'];
-                $valid_id_number = $_POST['id-number'];
-                $valid_id_issued = $_POST['id-issued-date'];
+                $valid_id_type = $_POST['valid_id_type'];
+                $valid_id_number = $_POST['valid_id_number'];
+                $valid_id_issued = $_POST['valid_id_issued'];
 
                 $result4 = $this->residentRegisterModel->registerResidentId($resident_id, $valid_id_type, $valid_id_number, $valid_id_issued);
 

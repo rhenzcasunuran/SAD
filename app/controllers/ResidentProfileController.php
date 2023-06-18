@@ -16,8 +16,24 @@ class ResidentProfileController extends ManageRedirectController {
 
     public function residentProfile() 
     {
-
+        /*
         $this->residentCheckIfNotSession();
+
+        // Unset all session variables
+        $_SESSION = array();
+
+        // Destroy the session
+        session_destroy();
+
+        // Regenerate the session ID
+        session_regenerate_id(true);
+
+        // Redirect to the login page
+        $this->redirectTo('index');
+        exit();*/
+
+
+
 
         // Get the resident user's information from the model
         $row = $this->residentProfileModel->getResidentProfileInfo($_SESSION['session_resident_id']);
