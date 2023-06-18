@@ -12,7 +12,7 @@ class ResidentLoginModel {
 
     public function authenticateResident($username, $password) 
     {
-        $select = "SELECT * FROM resident_users WHERE resident_username = ? AND resident_password = ?";
+        $select = "SELECT resident_id FROM resident_users WHERE resident_username = ? AND resident_password = ?";
         $stmt = $this->conn->prepare($select);
 
         if (!$stmt) {
