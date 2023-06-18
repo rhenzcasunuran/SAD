@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2023 at 04:59 PM
+-- Generation Time: Jun 18, 2023 at 03:41 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -62,7 +62,7 @@ CREATE TABLE `resident_address_book` (
   `city_municipality` varchar(255) NOT NULL,
   `barangay` varchar(255) NOT NULL,
   `zipcode` int(4) NOT NULL,
-  `phone_number` int(11) NOT NULL
+  `phone_number` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -79,7 +79,7 @@ CREATE TABLE `resident_address_contact` (
   `city` varchar(255) NOT NULL,
   `barangay` varchar(255) NOT NULL,
   `zipcode` int(4) NOT NULL,
-  `phone_number` int(11) NOT NULL,
+  `phone_number` varchar(11) NOT NULL,
   `email_address` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -226,7 +226,7 @@ ALTER TABLE `resident_personal_details`
 -- AUTO_INCREMENT for table `resident_users`
 --
 ALTER TABLE `resident_users`
-  MODIFY `resident_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `resident_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
@@ -236,7 +236,7 @@ ALTER TABLE `resident_users`
 -- Constraints for table `forgot_password_users`
 --
 ALTER TABLE `forgot_password_users`
-  ADD CONSTRAINT `forgot_password_users_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`);
+  ADD CONSTRAINT `forgot_password_users_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `resident_users` (`resident_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `resident_address_book`
